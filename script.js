@@ -62,19 +62,15 @@ let currentPaymentTransaction = null;
 let currentPaymentTotal = 0;
 let selectedPaymentMethod = null;
 
-// FONCTION SIMPLIFIÉE POUR TROUVER UN PATIENT (comme dans lolo.html)
+// FONCTION findPatient CORRIGÉE (de lolo.html)
 function findPatient(inputId) {
-    if (!inputId || inputId.trim() === '') {
-        return null;
-    }
-    
+    if (!inputId) return null;
     const search = inputId.trim().toLowerCase();
     
-    // Rechercher par ID exact ou nom contenant la recherche
+    // Search by ID or Name
     return state.patients.find(p => 
         p.id.toLowerCase() === search || 
-        p.name.toLowerCase().includes(search) ||
-        (p.phone && p.phone.includes(search))
+        p.name.toLowerCase().includes(search)
     );
 }
 
@@ -332,11 +328,45 @@ function showContent(contentId) {
     document.getElementById(contentId).classList.add('active');
 }
 
-// NOUVELLE FONCTION SETUP PATIENTS (simplifiée comme dans lolo.html)
 function setupPatients() {
     const patientForm = document.getElementById('patient-form');
     const printCardBtn = document.getElementById('print-card-btn');
     const closeCardBtn = document.getElementById('close-card-btn');
+    
+    // Mettre à jour les valeurs affichées des signes vitaux
+    document.getElementById('patient-temperature').addEventListener('input', function() {
+        document.getElementById('vital-temperature-display').textContent = this.value || '--';
+    });
+    
+    document.getElementById('patient-systolic').addEventListener('input', function() {
+        const diastolic = document.getElementById('patient-diastolic').value;
+        document.getElementById('vital-pressure-display').textContent = this.value + '/' + (diastolic || '--');
+    });
+    
+    document.getElementById('patient-diastolic').addEventListener('input', function() {
+        const systolic = document.getElementById('patient-systolic').value;
+        document.getElementById('vital-pressure-display').textContent = (systolic || '--') + '/' + this.value;
+    });
+    
+    document.getElementById('patient-pulse').addEventListener('input', function() {
+        document.getElementById('vital-pulse-display').textContent = this.value || '--';
+    });
+    
+    document.getElementById('patient-respiratory').addEventListener('input', function() {
+        document.getElementById('vital-respiratory-display').textContent = this.value || '--';
+    });
+    
+    document.getElementById('patient-oxygen').addEventListener('input', function() {
+        document.getElementById('vital-oxygen-display').textContent = this.value ? this.value + '%' : '--%';
+    });
+    
+    document.getElementById('patient-weight').addEventListener('input', function() {
+        document.getElementById('vital-weight-display').textContent = this.value ? this.value + ' kg' : '-- kg';
+    });
+    
+    document.getElementById('patient-height').addEventListener('input', function() {
+        document.getElementById('vital-height-display').textContent = this.value ? this.value + ' cm' : '-- cm';
+    });
     
     patientForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -346,40 +376,70 @@ function setupPatients() {
         
         let patientPrefix;
         if (isEmergency) {
-            patientPrefix = isPediatric ? 'URG' : 'URG';
+            patientPrefix = isPediatric ? 'URG-PED' : 'URG';
         } else {
             patientPrefix = isPediatric ? 'PED' : 'PA';
         }
         
-        const patientCount = state.patients.filter(p => p.id.startsWith(patientPrefix)).length;
-        const patientId = patientPrefix + (patientCount + 1).toString().padStart(4, '0');
+        let patientId;
+        if (isPediatric && !isEmergency) {
+            patientId = 'PED' + (state.pediatricCounter++).toString().padStart(4, '0');
+        } else {
+            const patientCount = state.patients.filter(p => p.id.startsWith(patientPrefix)).length;
+            patientId = patientPrefix + (patientCount + 1).toString().padStart(4, '0');
+        }
         
         const patient = {
             id: patientId,
             name: document.getElementById('patient-name').value,
             dob: document.getElementById('patient-dob').value,
+            birthplace: document.getElementById('patient-birthplace').value,
             phone: document.getElementById('patient-phone').value,
+            address: document.getElementById('patient-address').value,
+            responsible: document.getElementById('patient-responsible').value,
             registrationDate: new Date().toLocaleDateString('fr-FR'),
             registrationTime: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}),
             pediatric: isPediatric,
-            emergency: isEmergency
+            emergency: isEmergency,
+            vitals: {
+                temperature: document.getElementById('patient-temperature').value,
+                systolic: document.getElementById('patient-systolic').value,
+                diastolic: document.getElementById('patient-diastolic').value,
+                pulse: document.getElementById('patient-pulse').value,
+                respiratory: document.getElementById('patient-respiratory').value,
+                oxygen: document.getElementById('patient-oxygen').value,
+                weight: document.getElementById('patient-weight').value,
+                height: document.getElementById('patient-height').value,
+                notes: document.getElementById('patient-vitals-notes').value
+            }
         };
         
         state.patients.push(patient);
         updatePatientsTable();
+        displayPatientCard(patient);
         patientForm.reset();
+        
+        // Réinitialiser les affichages des signes vitaux
+        document.querySelectorAll('.vital-value').forEach(el => {
+            if (el.id.includes('display')) {
+                el.textContent = '--';
+                if (el.id === 'vital-oxygen-display') el.textContent = '--%';
+                if (el.id === 'vital-weight-display') el.textContent = '-- kg';
+                if (el.id === 'vital-height-display') el.textContent = '-- cm';
+            }
+        });
         
         showAlert('Patient enregistré avec succès! Numéro: ' + patientId, 'success');
         updateDashboard();
         updateRoleBasedDashboard();
     });
     
-    printCardBtn?.addEventListener('click', function() {
+    printCardBtn.addEventListener('click', function() {
         const printContent = document.getElementById('print-area').innerHTML;
         printContentDirectly(printContent, 'Carte du Patient');
     });
     
-    closeCardBtn?.addEventListener('click', function() {
+    closeCardBtn.addEventListener('click', function() {
         document.getElementById('patient-card-preview').classList.add('hidden');
     });
 }
@@ -388,6 +448,8 @@ function displayPatientCard(patient) {
     document.getElementById('card-patient-id').textContent = patient.id;
     document.getElementById('card-patient-name').textContent = patient.name;
     document.getElementById('card-patient-dob').textContent = new Date(patient.dob).toLocaleDateString('fr-FR');
+    document.getElementById('card-patient-birthplace').textContent = patient.birthplace;
+    document.getElementById('card-patient-responsible').textContent = patient.responsible || 'N/A';
     document.getElementById('card-patient-date').textContent = patient.registrationDate;
     
     const printArea = document.getElementById('print-area').innerHTML;
@@ -443,7 +505,7 @@ function setupConsultation() {
     const consultationForm = document.getElementById('consultation-form');
     
     // Ajouter une ligne au tableau des médicaments
-    addMedicationRowBtn?.addEventListener('click', function() {
+    addMedicationRowBtn.addEventListener('click', function() {
         const tableBody = document.getElementById('medication-table-body');
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
@@ -462,7 +524,7 @@ function setupConsultation() {
     });
     
     // Initialiser l'événement pour supprimer la première ligne
-    document.querySelector('.remove-medication-btn')?.addEventListener('click', function() {
+    document.querySelector('.remove-medication-btn').addEventListener('click', function() {
         this.closest('tr').remove();
     });
     
@@ -484,7 +546,7 @@ function setupConsultation() {
         }
     });
     
-    checkMedicationsBtn?.addEventListener('click', function() {
+    checkMedicationsBtn.addEventListener('click', function() {
         const medications = getMedicationsFromTable();
         if (medications.length === 0) {
             showAlert('Veuillez ajouter au moins un médicament', 'warning');
@@ -494,7 +556,7 @@ function setupConsultation() {
         checkMedicationsAvailability(medications);
     });
     
-    scheduleAppointmentBtn?.addEventListener('click', function() {
+    scheduleAppointmentBtn.addEventListener('click', function() {
         const patientId = document.getElementById('search-patient-id').value;
         const patient = findPatient(patientId);
         
@@ -876,6 +938,25 @@ function displayPatientForConsultation(patient) {
     const emergencyTag = patient.emergency ? '<span class="emergency-patient-tag">URGENCE</span>' : '';
     const pediatricTag = patient.pediatric ? '<span class="pediatric-tag">PÉDIATRIE</span>' : '';
     
+    let vitalsHtml = '';
+    if (patient.vitals) {
+        vitalsHtml = `
+            <div class="card mt-3">
+                <h4>Signes Vitaux</h4>
+                <div class="vitals-grid">
+                    ${patient.vitals.temperature ? `<div class="vital-item"><div class="vital-value">${patient.vitals.temperature}</div><div class="vital-label">Température (°C)</div></div>` : ''}
+                    ${patient.vitals.systolic && patient.vitals.diastolic ? `<div class="vital-item"><div class="vital-value">${patient.vitals.systolic}/${patient.vitals.diastolic}</div><div class="vital-label">Pression artérielle</div></div>` : ''}
+                    ${patient.vitals.pulse ? `<div class="vital-item"><div class="vital-value">${patient.vitals.pulse}</div><div class="vital-label">Pouls (bpm)</div></div>` : ''}
+                    ${patient.vitals.respiratory ? `<div class="vital-item"><div class="vital-value">${patient.vitals.respiratory}</div><div class="vital-label">Respiration (/min)</div></div>` : ''}
+                    ${patient.vitals.oxygen ? `<div class="vital-item"><div class="vital-value">${patient.vitals.oxygen}%</div><div class="vital-label">Saturation O2</div></div>` : ''}
+                    ${patient.vitals.weight ? `<div class="vital-item"><div class="vital-value">${patient.vitals.weight} kg</div><div class="vital-label">Poids</div></div>` : ''}
+                    ${patient.vitals.height ? `<div class="vital-item"><div class="vital-value">${patient.vitals.height} cm</div><div class="vital-label">Taille</div></div>` : ''}
+                </div>
+                ${patient.vitals.notes ? `<p><strong>Notes:</strong> ${patient.vitals.notes}</p>` : ''}
+            </div>
+        `;
+    }
+    
     detailsContainer.innerHTML = `
         <div class="patient-info-item">
             <div class="patient-info-label">Numéro patient:</div>
@@ -897,6 +978,7 @@ function displayPatientForConsultation(patient) {
             <div class="patient-info-label">Date d'enregistrement:</div>
             <div>${patient.registrationDate}</div>
         </div>
+        ${vitalsHtml}
     `;
     
     document.getElementById('consultation-patient-info').classList.remove('hidden');
@@ -1237,7 +1319,7 @@ function setupPharmacy() {
         }
     });
     
-    addMedicationBtn?.addEventListener('click', function() {
+    addMedicationBtn.addEventListener('click', function() {
         if (state.currentRole !== 'admin') {
             showAlert('Seul l\'administrateur peut ajouter des médicaments', 'warning');
             return;
@@ -1569,7 +1651,7 @@ function setupCashier() {
     // Charger les services externes
     loadExternalServices();
     
-    addExternalServiceBtn?.addEventListener('click', function() {
+    addExternalServiceBtn.addEventListener('click', function() {
         const patientId = document.getElementById('external-service-patient-id').value;
         const service = document.getElementById('selected-service').value;
         const price = document.getElementById('selected-service-price').value;
@@ -1627,7 +1709,7 @@ function setupCashier() {
         }
     });
     
-    printReceiptBtn?.addEventListener('click', function() {
+    printReceiptBtn.addEventListener('click', function() {
         const patientId = document.getElementById('cashier-patient-id').value;
         const patient = findPatient(patientId);
         
@@ -1638,7 +1720,7 @@ function setupCashier() {
         }
     });
     
-    paymentMethodSelect?.addEventListener('change', function() {
+    paymentMethodSelect.addEventListener('change', function() {
         selectedPaymentMethod = this.value;
         
         // Cacher tous les détails de paiement
@@ -1696,7 +1778,7 @@ function setupCashier() {
         }
     });
     
-    confirmPaymentBtn?.addEventListener('click', function() {
+    confirmPaymentBtn.addEventListener('click', function() {
         if (!selectedPaymentMethod) {
             showAlert('Veuillez sélectionner un moyen de paiement', 'warning');
             return;
@@ -1775,7 +1857,7 @@ function setupCashier() {
         }
     });
     
-    cancelPaymentBtn?.addEventListener('click', function() {
+    cancelPaymentBtn.addEventListener('click', function() {
         document.getElementById('payment-methods-container').classList.add('hidden');
         paymentMethodSelect.value = '';
         selectedPaymentMethod = null;
@@ -1794,8 +1876,6 @@ function setupCashier() {
 
 function loadExternalServices() {
     const container = document.getElementById('external-services-display');
-    if (!container) return;
-    
     container.innerHTML = '';
     
     state.externalServices.forEach(service => {
@@ -2446,7 +2526,7 @@ function setupEmployees() {
     const cancelEmployeeFormBtn = document.getElementById('cancel-employee-form-btn');
     const employeeForm = document.getElementById('employee-form');
     
-    checkInBtn?.addEventListener('click', function() {
+    checkInBtn.addEventListener('click', function() {
         const employeeId = document.getElementById('employee-id').value;
         const pin = document.getElementById('employee-pin').value;
         
@@ -2469,7 +2549,7 @@ function setupEmployees() {
         document.getElementById('employee-pin').value = '';
     });
     
-    checkOutBtn?.addEventListener('click', function() {
+    checkOutBtn.addEventListener('click', function() {
         const employeeId = document.getElementById('employee-id').value;
         const pin = document.getElementById('employee-pin').value;
         
@@ -2496,7 +2576,7 @@ function setupEmployees() {
         }
     });
     
-    faceIdBtn?.addEventListener('click', function() {
+    faceIdBtn.addEventListener('click', function() {
         const demoEmployees = ['EMP001', 'EMP002', 'EMP003', 'EMP004', 'EMP005', 'EMP006'];
         const randomEmployee = demoEmployees[Math.floor(Math.random() * demoEmployees.length)];
         
@@ -2505,7 +2585,7 @@ function setupEmployees() {
         showAlert('Face ID simulé. ID employé: ' + randomEmployee, 'info');
     });
     
-    addEmployeeBtn?.addEventListener('click', function() {
+    addEmployeeBtn.addEventListener('click', function() {
         document.getElementById('employee-form-title').textContent = 'Ajouter un Employé';
         document.getElementById('employee-edit-id').value = '';
         document.getElementById('employee-form').reset();
@@ -2518,12 +2598,12 @@ function setupEmployees() {
         document.getElementById('employee-management-form').classList.remove('hidden');
     });
     
-    cancelEmployeeFormBtn?.addEventListener('click', function() {
+    cancelEmployeeFormBtn.addEventListener('click', function() {
         document.getElementById('employee-management-form').classList.add('hidden');
         employeeForm.reset();
     });
     
-    employeeForm?.addEventListener('submit', function(e) {
+    employeeForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
         const employeeId = document.getElementById('employee-form-id').value;
@@ -2687,7 +2767,7 @@ function setupEmergency() {
     const saveRecordBtn = document.getElementById('save-emergency-record-btn');
     const printBillBtn = document.getElementById('print-emergency-bill-btn');
     
-    searchBtn?.addEventListener('click', function() {
+    searchBtn.addEventListener('click', function() {
         const patientId = document.getElementById('emergency-patient-id').value;
         const patient = findPatient(patientId);
         
@@ -2698,7 +2778,7 @@ function setupEmergency() {
         }
     });
     
-    consultationBtn?.addEventListener('click', function() {
+    consultationBtn.addEventListener('click', function() {
         const patientId = document.getElementById('emergency-patient-id').value;
         const patient = findPatient(patientId);
         
@@ -2738,7 +2818,7 @@ function setupEmergency() {
         }
     });
     
-    labBtn?.addEventListener('click', function() {
+    labBtn.addEventListener('click', function() {
         const patientId = document.getElementById('emergency-patient-id').value;
         const patient = findPatient(patientId);
         
@@ -2774,7 +2854,7 @@ function setupEmergency() {
         }
     });
     
-    pharmacyBtn?.addEventListener('click', function() {
+    pharmacyBtn.addEventListener('click', function() {
         const patientId = document.getElementById('emergency-patient-id').value;
         const patient = findPatient(patientId);
         
@@ -2820,7 +2900,7 @@ function setupEmergency() {
         }
     });
     
-    saveRecordBtn?.addEventListener('click', function() {
+    saveRecordBtn.addEventListener('click', function() {
         const patientId = document.getElementById('emergency-patient-id').value;
         const patient = findPatient(patientId);
         
@@ -2839,7 +2919,7 @@ function setupEmergency() {
         }
     });
     
-    printBillBtn?.addEventListener('click', function() {
+    printBillBtn.addEventListener('click', function() {
         const patientId = document.getElementById('emergency-patient-id').value;
         const patient = findPatient(patientId);
         
@@ -3041,239 +3121,125 @@ function printEmergencyBill(patient) {
     printContentDirectly(billHtml, 'Facture Urgence');
 }
 
-// NOUVELLE FONCTION SETUP SETTINGS (comme dans lolo.html)
+// FONCTIONS SETTINGS CORRIGÉES (de lolo.html)
 function setupSettings() {
-    // Boutons d'ajout
-    const addConsultationTypeBtn = document.getElementById('add-consultation-type-btn');
-    const addExternalServiceBtn = document.getElementById('add-external-service-settings-btn');
-    const addLabAnalysisBtn = document.getElementById('add-lab-analysis-settings-btn');
-    const saveEmergencyPricesBtn = document.getElementById('save-emergency-prices-btn');
-    const saveGeneralSettingsBtn = document.getElementById('save-general-settings-btn');
-    
-    if (addConsultationTypeBtn) {
-        addConsultationTypeBtn.addEventListener('click', function(e) {
+    // 1. Consultation Types
+    const btnConsult = document.getElementById('add-consultation-type-btn');
+    if(btnConsult) {
+        btnConsult.addEventListener('click', function(e) {
             e.preventDefault();
-            const name = document.getElementById('new-consultation-type').value;
-            const priceVal = document.getElementById('new-consultation-price').value.replace(',', '.');
+            const nameInput = document.getElementById('new-consultation-type');
+            const priceInput = document.getElementById('new-consultation-price');
+            
+            const name = nameInput.value;
+            // Handle comma as decimal separator
+            const priceVal = priceInput.value.replace(',', '.');
             const price = parseFloat(priceVal);
             
-            if (!name || isNaN(price) || price <= 0) {
-                showAlert('Veuillez entrer un nom et un prix valides', 'warning');
+            if(!name || isNaN(price)) {
+                showAlert("Veuillez entrer un nom valide et un prix numérique.", 'warning');
                 return;
             }
             
-            state.consultationTypeCounter++;
-            const newType = {
-                id: state.consultationTypeCounter,
+            state.consultationTypes.push({
+                id: Date.now(),
                 name: name,
                 price: price,
                 active: true
-            };
+            });
             
-            state.consultationTypes.push(newType);
-            
-            document.getElementById('new-consultation-type').value = '';
-            document.getElementById('new-consultation-price').value = '';
-            
+            nameInput.value = '';
+            priceInput.value = '';
             updateSettingsDisplay();
-            showAlert('Type de consultation ajouté avec succès!', 'success');
+            showAlert("Type de consultation ajouté !", 'success');
         });
     }
-    
-    if (addExternalServiceBtn) {
-        addExternalServiceBtn.addEventListener('click', function(e) {
+
+    // 2. External Services
+    const btnExt = document.getElementById('add-external-service-settings-btn');
+    if(btnExt) {
+        btnExt.addEventListener('click', function(e) {
             e.preventDefault();
-            const name = document.getElementById('new-external-service').value;
-            const priceVal = document.getElementById('new-external-service-price').value.replace(',', '.');
-            const price = parseFloat(priceVal);
+            const nameInput = document.getElementById('new-external-service');
+            const priceInput = document.getElementById('new-external-service-price');
             
-            if (!name || isNaN(price) || price <= 0) {
-                showAlert('Veuillez entrer un nom et un prix valides', 'warning');
+            const name = nameInput.value;
+            const price = parseFloat(priceInput.value.replace(',', '.'));
+            
+            if(!name || isNaN(price)) {
+                showAlert("Erreur de saisie.", 'warning');
                 return;
             }
             
-            state.externalServiceCounter++;
-            const newService = {
-                id: state.externalServiceCounter,
-                name: name,
-                price: price,
-                active: true
-            };
-            
-            state.externalServices.push(newService);
-            
-            document.getElementById('new-external-service').value = '';
-            document.getElementById('new-external-service-price').value = '';
-            
+            state.externalServices.push({ id: Date.now(), name: name, price: price, active: true });
+            nameInput.value = '';
+            priceInput.value = '';
             updateSettingsDisplay();
-            loadExternalServices();
-            showAlert('Service externe ajouté avec succès!', 'success');
+            showAlert("Service ajouté !", 'success');
         });
     }
-    
-    if (addLabAnalysisBtn) {
-        addLabAnalysisBtn.addEventListener('click', function(e) {
+
+    // 3. Lab Analyses
+    const btnLab = document.getElementById('add-lab-analysis-settings-btn');
+    if(btnLab) {
+        btnLab.addEventListener('click', function(e) {
             e.preventDefault();
-            const name = document.getElementById('new-lab-analysis').value;
-            const priceVal = document.getElementById('new-lab-analysis-price').value.replace(',', '.');
-            const price = parseFloat(priceVal);
+            const nameInput = document.getElementById('new-lab-analysis');
+            const priceInput = document.getElementById('new-lab-analysis-price');
             
-            if (!name || isNaN(price) || price <= 0) {
-                showAlert('Veuillez entrer un nom et un prix valides', 'warning');
+            const name = nameInput.value;
+            const price = parseFloat(priceInput.value.replace(',', '.'));
+            
+            if(!name || isNaN(price)) {
+                showAlert("Erreur de saisie.", 'warning');
                 return;
             }
             
-            state.labAnalysisCounter++;
-            const newAnalysis = {
-                id: state.labAnalysisCounter,
-                name: name,
-                price: price,
-                active: true
-            };
-            
-            state.labAnalyses.push(newAnalysis);
-            
-            document.getElementById('new-lab-analysis').value = '';
-            document.getElementById('new-lab-analysis-price').value = '';
-            
+            state.labAnalyses.push({ id: Date.now(), name: name, price: price, active: true });
+            nameInput.value = '';
+            priceInput.value = '';
             updateSettingsDisplay();
-            showAlert('Analyse de laboratoire ajoutée avec succès!', 'success');
-        });
-    }
-    
-    if (saveEmergencyPricesBtn) {
-        saveEmergencyPricesBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const consultationPrice = parseFloat(document.getElementById('emergency-consultation-price').value.replace(',', '.'));
-            const analysisPrice = parseFloat(document.getElementById('emergency-analysis-price').value.replace(',', '.'));
-            
-            if (isNaN(consultationPrice) || consultationPrice <= 0 || isNaN(analysisPrice) || analysisPrice <= 0) {
-                showAlert('Veuillez entrer des prix valides pour les services d\'urgence', 'warning');
-                return;
-            }
-            
-            state.servicePrices['Consultation Urgence'] = consultationPrice;
-            state.servicePrices['Analyse Urgence'] = analysisPrice;
-            
-            showAlert('Prix des services d\'urgence mis à jour avec succès!', 'success');
-        });
-    }
-    
-    if (saveGeneralSettingsBtn) {
-        saveGeneralSettingsBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const hospitalName = document.getElementById('hospital-name').value;
-            const address = document.getElementById('hospital-address').value;
-            const phone = document.getElementById('hospital-phone').value;
-            
-            if (!hospitalName || !address || !phone) {
-                showAlert('Veuillez remplir tous les champs de configuration', 'warning');
-                return;
-            }
-            
-            showAlert('Configuration générale enregistrée avec succès!', 'success');
+            showAlert("Analyse ajoutée !", 'success');
         });
     }
     
     // Initialiser les valeurs des prix d'urgence
-    const emergencyConsultationInput = document.getElementById('emergency-consultation-price');
-    const emergencyAnalysisInput = document.getElementById('emergency-analysis-price');
-    
-    if (emergencyConsultationInput) {
-        emergencyConsultationInput.value = state.servicePrices['Consultation Urgence'];
-    }
-    if (emergencyAnalysisInput) {
-        emergencyAnalysisInput.value = state.servicePrices['Analyse Urgence'];
-    }
+    document.getElementById('emergency-consultation-price').value = state.servicePrices['Consultation Urgence'];
+    document.getElementById('emergency-analysis-price').value = state.servicePrices['Analyse Urgence'];
     
     updateSettingsDisplay();
 }
 
-// NOUVELLE FONCTION UPDATE SETTINGS DISPLAY (comme dans lolo.html)
 function updateSettingsDisplay() {
     // Types de consultation
     const consultationList = document.getElementById('consultation-types-list');
-    if (consultationList) {
-        consultationList.innerHTML = '';
-        
-        state.consultationTypes.forEach(type => {
-            if (type.active) {
-                const item = document.createElement('div');
-                item.className = 'setting-item';
-                item.innerHTML = `
-                    <div>
-                        <strong>${type.name}</strong>
-                        <div class="lab-analysis-price">${type.price} Gdes</div>
-                    </div>
-                    <div class="setting-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="editConsultationType(${type.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteConsultationType(${type.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                consultationList.appendChild(item);
-            }
-        });
-    }
+    consultationList.innerHTML = '';
+    
+    state.consultationTypes.forEach(type => {
+        if(type.active) {
+            consultationList.innerHTML += `<div class="setting-item"><strong>${type.name}</strong> <span class="service-price">${type.price} Gdes</span></div>`;
+        }
+    });
     
     // Services externes
     const externalServicesList = document.getElementById('external-services-list-settings');
-    if (externalServicesList) {
-        externalServicesList.innerHTML = '';
-        
-        state.externalServices.forEach(service => {
-            if (service.active) {
-                const item = document.createElement('div');
-                item.className = 'setting-item';
-                item.innerHTML = `
-                    <div>
-                        <strong>${service.name}</strong>
-                        <div class="lab-analysis-price">${service.price} Gdes</div>
-                    </div>
-                    <div class="setting-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="editExternalService(${service.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteExternalService(${service.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                externalServicesList.appendChild(item);
-            }
-        });
-    }
+    externalServicesList.innerHTML = '';
+    
+    state.externalServices.forEach(service => {
+        if(service.active) {
+            externalServicesList.innerHTML += `<div class="setting-item"><strong>${service.name}</strong> <span class="service-price">${service.price} Gdes</span></div>`;
+        }
+    });
     
     // Analyses de laboratoire
     const labAnalysesList = document.getElementById('lab-analyses-list-settings');
-    if (labAnalysesList) {
-        labAnalysesList.innerHTML = '';
-        
-        state.labAnalyses.forEach(analysis => {
-            if (analysis.active) {
-                const item = document.createElement('div');
-                item.className = 'setting-item';
-                item.innerHTML = `
-                    <div>
-                        <strong>${analysis.name}</strong>
-                        <div class="lab-analysis-price">${analysis.price} Gdes</div>
-                    </div>
-                    <div class="setting-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="editLabAnalysis(${analysis.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteLabAnalysis(${analysis.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                labAnalysesList.appendChild(item);
-            }
-        });
-    }
+    labAnalysesList.innerHTML = '';
+    
+    state.labAnalyses.forEach(analysis => {
+        if(analysis.active) {
+            labAnalysesList.innerHTML += `<div class="setting-item"><strong>${analysis.name}</strong> <span class="service-price">${analysis.price} Gdes</span></div>`;
+        }
+    });
 }
 
 function editConsultationType(id) {
@@ -3306,7 +3272,6 @@ function editExternalService(id) {
         if (newPrice && !isNaN(newPrice) && parseFloat(newPrice) > 0) {
             service.price = parseFloat(newPrice);
             updateSettingsDisplay();
-            loadExternalServices();
             showAlert('Prix mis à jour avec succès!', 'success');
         }
     }
@@ -3318,7 +3283,6 @@ function deleteExternalService(id) {
         if (service) {
             service.active = false;
             updateSettingsDisplay();
-            loadExternalServices();
             showAlert('Service externe désactivé avec succès!', 'success');
         }
     }
@@ -3929,7 +3893,10 @@ function loadDemoData() {
             id: 'PA0001',
             name: 'Jean Dupont',
             dob: '1985-03-15',
+            birthplace: 'Paris, France',
             phone: '06 12 34 56 78',
+            address: '12 Rue de la Paix, Paris',
+            responsible: '',
             registrationDate: '10/10/2023',
             registrationTime: '09:15',
             pediatric: false,
@@ -3939,7 +3906,10 @@ function loadDemoData() {
             id: 'PA0002',
             name: 'Marie Lambert',
             dob: '1992-07-22',
+            birthplace: 'Lyon, France',
             phone: '06 23 45 67 89',
+            address: '45 Avenue des Champs, Lyon',
+            responsible: '',
             registrationDate: '11/10/2023',
             registrationTime: '10:30',
             pediatric: false,
@@ -3949,7 +3919,10 @@ function loadDemoData() {
             id: 'PED0001',
             name: 'Lucas Petit',
             dob: '2018-11-05',
+            birthplace: 'Marseille, France',
             phone: '06 34 56 78 90',
+            address: '78 Boulevard du Port, Marseille',
+            responsible: 'Marie Petit',
             registrationDate: '12/10/2023',
             registrationTime: '14:20',
             pediatric: true,
@@ -3959,17 +3932,23 @@ function loadDemoData() {
             id: 'URG0001',
             name: 'Robert Gravement',
             dob: '1965-08-30',
+            birthplace: 'Lille, France',
             phone: '06 45 67 89 01',
+            address: '23 Rue de la Gare, Lille',
+            responsible: '',
             registrationDate: new Date().toLocaleDateString('fr-FR'),
             registrationTime: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}),
             pediatric: false,
             emergency: true
         },
         {
-            id: 'URG0002',
+            id: 'URG-PED0001',
             name: 'Emma Gravement',
             dob: '2019-05-15',
+            birthplace: 'Paris, France',
             phone: '06 56 78 90 12',
+            address: '34 Rue de la Santé, Paris',
+            responsible: 'Sophie Gravement',
             registrationDate: new Date().toLocaleDateString('fr-FR'),
             registrationTime: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}),
             pediatric: true,
@@ -4220,7 +4199,7 @@ function loadDemoData() {
         },
         {
             id: 'E-002',
-            patientId: 'URG0002',
+            patientId: 'URG-PED0001',
             admissionTime: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}),
             admissionDate: today,
             doctor: 'Dr. Marie Curie',
