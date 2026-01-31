@@ -5,1557 +5,2270 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Système de Gestion Hospitalier</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles CSS inchangés */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f7ff; color: #333; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #1a6bca 0%, #0d4d9c 100%); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+        .logo { display: flex; align-items: center; gap: 15px; }
+        .logo i { font-size: 2.2rem; }
+        .logo h1 { font-size: 1.8rem; font-weight: 700; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .logout-btn { background-color: #ff6b6b; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        
+        /* Navigation */
+        .nav-tabs { display: flex; background-color: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); margin-bottom: 25px; flex-wrap: wrap; }
+        .nav-tab { flex: 1; text-align: center; padding: 15px 10px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; color: #555; border-bottom: 3px solid transparent; min-width: 100px; }
+        .nav-tab:hover { background-color: #f5f9ff; }
+        .nav-tab.active { color: #1a6bca; border-bottom: 3px solid #1a6bca; background-color: #f0f7ff; }
+        
+        /* Content */
+        .content { background-color: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); margin-bottom: 25px; min-height: 500px; display: none; }
+        .content.active { display: block; }
+        .section-title { color: #1a6bca; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #eef5ff; font-size: 1.5rem; }
+        
+        /* Forms & Buttons */
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; transition: border 0.3s; }
+        .form-control:focus { outline: none; border-color: #1a6bca; }
+        .btn { padding: 12px 25px; background-color: #1a6bca; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; }
+        .btn:hover { background-color: #0d4d9c; transform: translateY(-2px); }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-warning { background-color: #ffc107; color: #212529; }
+        .btn-warning:hover { background-color: #e0a800; }
+        
+        /* Cards & Layouts */
+        .card { background-color: #f8fbff; border-radius: 8px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #1a6bca; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); }
+        .card h3 { color: #1a6bca; margin-bottom: 10px; }
+        .d-flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .hidden { display: none !important; }
+        .mt-2 { margin-top: 10px; }
+        .mt-3 { margin-top: 15px; }
+        .mb-2 { margin-bottom: 10px; }
+        .mb-3 { margin-bottom: 15px; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        
+        /* Tables */
+        .table-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eef5ff; }
+        th { background-color: #f0f7ff; color: #1a6bca; font-weight: 600; }
+        tr:hover { background-color: #f8fbff; }
+        
+        /* Dashboard Stats */
+        .stats-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); display: flex; align-items: center; gap: 15px; }
+        .stat-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
+        .stat-info h3 { font-size: 1.8rem; margin-bottom: 5px; color: #333; }
+        .stat-info p { color: #777; font-weight: 600; }
+
+        /* Login */
+        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #1a6bca 0%, #0d4d9c 100%); }
+        .login-box { background-color: white; width: 100%; max-width: 450px; padding: 40px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+        .login-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
+        .login-role-btn { padding: 15px; background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-align: center; }
+        .login-role-btn.active { background-color: #1a6bca; color: white; border-color: #1a6bca; }
+        
+        /* Alerts */
+        .alert { padding: 12px 15px; border-radius: 5px; margin-bottom: 20px; position: relative; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .alert-info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* Specific Elements */
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eef5ff; }
+        .setting-actions { display: flex; gap: 10px; }
+        .service-price { display: inline-block; background-color: #e7f3ff; color: #1a6bca; padding: 3px 8px; border-radius: 4px; font-weight: 600; margin-left: 10px; font-size: 0.9rem; }
+        .emergency-patient-tag { background-color: #dc3545; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .pediatric-tag { background-color: #17a2b8; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        
+        /* New Styles */
+        .payment-method-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .payment-method { border: 2px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; }
+        .payment-method.active { border-color: #1a6bca; background-color: #f0f7ff; }
+        .service-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid #eef5ff; border-radius: 5px; margin-bottom: 5px; }
+        .service-item.selected { background-color: #e7f3ff; border-color: #1a6bca; }
+        .check-availability-btn { margin-left: 10px; padding: 5px 10px; background-color: #17a2b8; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .admin-stat-card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .cashier-total { background-color: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        
+        /* Signes vitaux grid */
+        .vitals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }
+        .vital-item { border: 1px solid #eef5ff; padding: 15px; border-radius: 8px; }
+        
+        /* Patient card */
+        .patient-card { width: 350px; border: 2px solid #1a6bca; border-radius: 10px; padding: 20px; background: white; }
+        .patient-card-header { background: #1a6bca; color: white; padding: 15px; margin: -20px -20px 20px -20px; border-radius: 8px 8px 0 0; }
+        .patient-photo { width: 100px; height: 100px; background: #ddd; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; }
+        
+        /* Print */
+        @media print {
+            body * { visibility: hidden; }
+            .printable, .printable * { visibility: visible; }
+            .printable { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+            .print-receipt { width: 80mm; font-size: 12px; }
+        }
+        
+        /* Nouvelles classes */
+        .small-input { width: 80px; }
+        .vitals-form { background: #f8fbff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .employee-form { background: #f8fbff; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .hospital-info-form { background: #f8fbff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .print-controls { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; }
+        .medication-out-stock { background: #fff3cd; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .receipt-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ddd; }
+        .receipt-total { font-weight: bold; font-size: 1.2rem; margin-top: 10px; }
+    </style>
 </head>
 <body>
-    <!-- Login Screen -->
     <div id="login-screen" class="login-container">
         <div class="login-box">
-            <div class="login-title">
-                <i class="fas fa-hospital-alt"></i>
-                <h2>Hôpital Saint-Luc</h2>
-                <p>Système de Gestion Hospitalier</p>
+            <div class="text-center mb-3">
+                <i class="fas fa-hospital-alt fa-3x" style="color: #1a6bca;"></i>
+                <h2 style="color: #1a6bca;" id="hospital-name-login">Hôpital Saint-Luc</h2>
             </div>
             
             <div class="login-buttons">
-                <div class="login-role-btn" data-role="admin">
-                    <i class="fas fa-user-shield"></i>
-                    <p>Administration</p>
-                </div>
-                <div class="login-role-btn" data-role="doctor">
-                    <i class="fas fa-user-md"></i>
-                    <p>Docteur</p>
-                </div>
-                <div class="login-role-btn" data-role="lab">
-                    <i class="fas fa-flask"></i>
-                    <p>Laboratoire</p>
-                </div>
-                <div class="login-role-btn" data-role="pharmacy">
-                    <i class="fas fa-pills"></i>
-                    <p>Pharmacie</p>
-                </div>
-                <div class="login-role-btn" data-role="reception">
-                    <i class="fas fa-user-tie"></i>
-                    <p>Réception</p>
-                </div>
-                <div class="login-role-btn" data-role="cashier">
-                    <i class="fas fa-cash-register"></i>
-                    <p>Caissier</p>
-                </div>
+                <div class="login-role-btn active" data-role="admin"><i class="fas fa-user-shield"></i><p>Admin</p></div>
+                <div class="login-role-btn" data-role="doctor"><i class="fas fa-user-md"></i><p>Docteur</p></div>
+                <div class="login-role-btn" data-role="lab"><i class="fas fa-flask"></i><p>Labo</p></div>
+                <div class="login-role-btn" data-role="pharmacy"><i class="fas fa-pills"></i><p>Pharmacie</p></div>
+                <div class="login-role-btn" data-role="reception"><i class="fas fa-user-tie"></i><p>Réception</p></div>
+                <div class="login-role-btn" data-role="cashier"><i class="fas fa-cash-register"></i><p>Caisse</p></div>
             </div>
             
             <form id="login-form">
                 <div class="form-group">
-                    <label class="form-label" for="username">Nom d'utilisateur</label>
-                    <input type="text" id="username" class="form-control" placeholder="Entrez votre nom d'utilisateur" required>
+                    <label class="form-label">Nom d'utilisateur</label>
+                    <input type="text" id="username" class="form-control" placeholder="admin" required>
                 </div>
-                
                 <div class="form-group">
-                    <label class="form-label" for="password">Mot de passe</label>
-                    <input type="password" id="password" class="form-control" placeholder="Entrez votre mot de passe" required>
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" id="password" class="form-control" placeholder="1234" required>
                 </div>
-                
-                <div class="form-group">
-                    <button type="submit" class="btn" style="width: 100%;">
-                        <i class="fas fa-sign-in-alt"></i> Se Connecter
-                    </button>
-                </div>
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> SYSTEME EN PRODUCTION UTILISER LES MOTS DE PASSES DONNEE PAR LA NOVA
-                </div>
+                <button type="submit" class="btn" style="width: 100%;">Se Connecter</button>
             </form>
         </div>
     </div>
     
-    <!-- Main Application -->
     <div id="main-app" class="hidden">
         <div class="container">
-            <!-- Header -->
             <header class="header">
                 <div class="logo">
                     <i class="fas fa-hospital-alt"></i>
-                    <div>
-                        <h1>Hôpital Saint-Luc</h1>
-                        <p>Système de Gestion Hospitalier</p>
-                    </div>
+                    <div><h1 id="hospital-name-header">Hôpital Saint-Luc</h1><p id="hospital-address-header">Système de Gestion</p></div>
                 </div>
-                
                 <div class="user-info">
                     <div>
                         <p id="current-user-role">Administrateur</p>
-                        <p><strong id="current-username">Dr. Jean Martin</strong></p>
+                        <p><strong id="current-username">User</strong></p>
                     </div>
-                    <button id="logout-btn" class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Déconnexion
-                    </button>
+                    <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
                 </div>
             </header>
             
-            <!-- Navigation Tabs -->
             <nav class="nav-tabs no-print">
-                <div class="nav-tab active" data-target="dashboard">
-                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
-                </div>
-                <div class="nav-tab" data-target="patients">
-                    <i class="fas fa-user-injured"></i> Dossier Patients
-                </div>
-                <div class="nav-tab" data-target="consultation">
-                    <i class="fas fa-stethoscope"></i> Consultation
-                </div>
-                <div class="nav-tab" data-target="appointments">
-                    <i class="fas fa-calendar-check"></i> Rendez-vous
-                </div>
-                <div class="nav-tab" data-target="laboratory">
-                    <i class="fas fa-flask"></i> Laboratoire
-                </div>
-                <div class="nav-tab" data-target="pharmacy">
-                    <i class="fas fa-pills"></i> Pharmacie
-                </div>
-                <div class="nav-tab" data-target="cashier">
-                    <i class="fas fa-cash-register"></i> Caisse
-                </div>
-                <div class="nav-tab" data-target="administration">
-                    <i class="fas fa-chart-bar"></i> Administration
-                </div>
-                <div class="nav-tab" data-target="employees">
-                    <i class="fas fa-users"></i> Employés
-                </div>
-                <div class="nav-tab" data-target="emergency">
-                    <i class="fas fa-ambulance"></i> Urgence
-                </div>
-                <div class="nav-tab" data-target="settings">
-                    <i class="fas fa-cog"></i> Paramètres
-                </div>
+                <div class="nav-tab active" data-target="dashboard"><i class="fas fa-tachometer-alt"></i> Accueil</div>
+                <div class="nav-tab" data-target="patients"><i class="fas fa-user-injured"></i> Patients</div>
+                <div class="nav-tab" data-target="consultation"><i class="fas fa-stethoscope"></i> Consultation</div>
+                <div class="nav-tab" data-target="appointments"><i class="fas fa-calendar-check"></i> RDV</div>
+                <div class="nav-tab" data-target="laboratory"><i class="fas fa-flask"></i> Laboratoire</div>
+                <div class="nav-tab" data-target="pharmacy"><i class="fas fa-pills"></i> Pharmacie</div>
+                <div class="nav-tab" data-target="cashier"><i class="fas fa-cash-register"></i> Caisse</div>
+                <div class="nav-tab" data-target="administration"><i class="fas fa-chart-bar"></i> Admin</div>
+                <div class="nav-tab" data-target="settings"><i class="fas fa-cog"></i> Paramètres</div>
             </nav>
             
-            <!-- Dashboard Content -->
             <section id="dashboard" class="content active">
-                <!-- Tableau de bord Admin -->
-                <div id="admin-dashboard" class="role-dashboard active">
-                    <h2 class="section-title">
-                        <i class="fas fa-tachometer-alt"></i> Tableau de Bord Administratif
-                    </h2>
-                    
-                    <div class="stats-container">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background-color: #1a6bca;">
-                                <i class="fas fa-user-injured"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="stat-patients">0</h3>
-                                <p>Patients enregistrés</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background-color: #28a745;">
-                                <i class="fas fa-stethoscope"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="stat-consultations">0</h3>
-                                <p>Consultations aujourd'hui</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background-color: #ffc107;">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="stat-appointments">0</h3>
-                                <p>Rendez-vous aujourd'hui</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background-color: #dc3545;">
-                                <i class="fas fa-flask"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="stat-analyses">0</h3>
-                                <p>Analyses en attente</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Performance des Services Aujourd'hui</h3>
-                        <div id="service-performance">
-                            <!-- Les performances seront ajoutées ici -->
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Alertes et Notifications</h3>
-                        <div id="admin-notifications-list">
-                            <!-- Notifications admin seront ajoutées ici -->
-                        </div>
-                    </div>
+                <h2 class="section-title">Tableau de Bord</h2>
+                <div class="stats-container">
+                    <div class="stat-card"><div class="stat-icon" style="background:#1a6bca"><i class="fas fa-user-injured"></i></div><div class="stat-info"><h3 id="stat-patients">0</h3><p>Patients</p></div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:#28a745"><i class="fas fa-stethoscope"></i></div><div class="stat-info"><h3 id="stat-consultations">0</h3><p>Consultations</p></div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:#dc3545"><i class="fas fa-flask"></i></div><div class="stat-info"><h3 id="stat-analyses">0</h3><p>Analyses</p></div></div>
                 </div>
-                
-                <!-- Tableau de bord Docteur -->
-                <div id="doctor-dashboard" class="role-dashboard">
-                    <h2 class="section-title">
-                        <i class="fas fa-user-md"></i> Tableau de Bord Docteur
-                    </h2>
-                    
-                    <!-- Vos revenus aujourd'hui -->
-                    <div id="doctor-today-total" class="employee-total">
-                        <h3><i class="fas fa-money-bill-wave"></i> Vos revenus aujourd'hui</h3>
-                        <p id="doctor-service-total">Total: 0 Gdes</p>
-                    </div>
-                    
-                    <!-- Vos rendez-vous aujourd'hui -->
-                    <div id="doctor-appointments-dashboard" class="card">
-                        <h3><i class="fas fa-calendar-day"></i> Vos rendez-vous aujourd'hui</h3>
-                        <div id="today-appointments-list">
-                            <!-- Appointments will be added here -->
-                        </div>
-                    </div>
-                    
-                    <!-- Patients en attente -->
-                    <div class="card">
-                        <h3><i class="fas fa-user-clock"></i> Patients en attente</h3>
-                        <div id="waiting-patients-list">
-                            <!-- Patients en attente seront ajoutés ici -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Tableau de bord Laboratoire -->
-                <div id="lab-dashboard" class="role-dashboard">
-                    <h2 class="section-title">
-                        <i class="fas fa-flask"></i> Tableau de Bord Laboratoire
-                    </h2>
-                    
-                    <!-- Vos revenus aujourd'hui -->
-                    <div id="lab-today-total" class="employee-total">
-                        <h3><i class="fas fa-money-bill-wave"></i> Vos revenus aujourd'hui</h3>
-                        <p id="lab-service-total">Total: 0 Gdes</p>
-                    </div>
-                    
-                    <!-- Analyses en attente -->
-                    <div class="card">
-                        <h3><i class="fas fa-hourglass-half"></i> Analyses en attente</h3>
-                        <div id="lab-pending-analyses">
-                            <!-- Analyses en attente seront ajoutées ici -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Tableau de bord Pharmacie -->
-                <div id="pharmacy-dashboard" class="role-dashboard">
-                    <h2 class="section-title">
-                        <i class="fas fa-pills"></i> Tableau de Bord Pharmacie
-                    </h2>
-                    
-                    <!-- Vos revenus aujourd'hui -->
-                    <div id="pharmacy-today-total" class="employee-total">
-                        <h3><i class="fas fa-money-bill-wave"></i> Vos revenus aujourd'hui</h3>
-                        <p id="pharmacy-service-total">Total: 0 Gdes</p>
-                    </div>
-                    
-                    <!-- Ordonnances en attente -->
-                    <div class="card">
-                        <h3><i class="fas fa-prescription"></i> Ordonnances en attente</h3>
-                        <div id="pharmacy-pending-prescriptions">
-                            <!-- Ordonnances en attente seront ajoutées ici -->
-                        </div>
-                    </div>
-                    
-                    <!-- Stock bas -->
-                    <div class="card">
-                        <h3><i class="fas fa-exclamation-triangle"></i> Médicaments en stock bas</h3>
-                        <div id="pharmacy-low-stock">
-                            <!-- Médicaments en stock bas seront ajoutés ici -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Tableau de bord Réception -->
-                <div id="reception-dashboard" class="role-dashboard">
-                    <h2 class="section-title">
-                        <i class="fas fa-user-tie"></i> Tableau de Bord Réception
-                    </h2>
-                    
-                    <!-- Patients enregistrés aujourd'hui -->
-                    <div class="card">
-                        <h3><i class="fas fa-user-plus"></i> Patients enregistrés aujourd'hui</h3>
-                        <div id="reception-today-patients">
-                            <!-- Patients enregistrés aujourd'hui seront ajoutés ici -->
-                        </div>
-                    </div>
-                    
-                    <!-- Rendez-vous aujourd'hui -->
-                    <div class="card">
-                        <h3><i class="fas fa-calendar-day"></i> Rendez-vous aujourd'hui</h3>
-                        <div id="reception-today-appointments">
-                            <!-- Rendez-vous aujourd'hui seront ajoutés ici -->
-                        </div>
-                    </div>
-                    
-                    <!-- Urgences en cours -->
-                    <div class="card">
-                        <h3><i class="fas fa-ambulance"></i> Urgences en cours</h3>
-                        <div id="reception-active-emergencies">
-                            <!-- Urgences en cours seront ajoutées ici -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Tableau de bord Caisse -->
-                <div id="cashier-dashboard" class="role-dashboard">
-                    <h2 class="section-title">
-                        <i class="fas fa-cash-register"></i> Tableau de Bord Caisse
-                    </h2>
-                    
-                    <!-- Total aujourd'hui -->
-                    <div class="card">
-                        <h3><i class="fas fa-money-bill-wave"></i> Performance aujourd'hui</h3>
-                        <div class="stats-container">
-                            <div class="stat-card">
-                                <div class="stat-icon" style="background-color: #28a745;">
-                                    <i class="fas fa-money-bill"></i>
-                                </div>
-                                <div class="stat-info">
-                                    <h3 id="cashier-today-total">0 Gdes</h3>
-                                    <p>Total encaissé</p>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-card">
-                                <div class="stat-icon" style="background-color: #1a6bca;">
-                                    <i class="fas fa-receipt"></i>
-                                </div>
-                                <div class="stat-info">
-                                    <h3 id="cashier-today-transactions">0</h3>
-                                    <p>Transactions</p>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-card">
-                                <div class="stat-icon" style="background-color: #ffc107;">
-                                    <i class="fas fa-user-check"></i>
-                                </div>
-                                <div class="stat-info">
-                                    <h3 id="cashier-today-patients">0</h3>
-                                    <p>Patients payés</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Transactions récentes -->
-                    <div class="card">
-                        <h3><i class="fas fa-history"></i> Transactions récentes</h3>
-                        <div id="cashier-recent-transactions">
-                            <!-- Transactions récentes seront ajoutées ici -->
-                        </div>
-                    </div>
-                </div>
+                <div id="notifications-list"></div>
             </section>
             
-            <!-- Patients Content -->
             <section id="patients" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-user-injured"></i> Enregistrement des Patients
-                </h2>
-                
+                <h2 class="section-title">Gestion des Patients</h2>
                 <div class="card">
                     <h3>Nouveau Patient</h3>
                     <form id="patient-form">
-                        <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                            <div style="flex: 1;">
-                                <label class="form-label" for="patient-name">Nom complet *</label>
-                                <input type="text" id="patient-name" class="form-control" placeholder="Nom et prénom" required>
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label" for="patient-dob">Date de naissance *</label>
-                                <input type="date" id="patient-dob" class="form-control" required>
-                            </div>
+                        <div class="d-flex" style="gap:20px">
+                            <div style="flex:1"><label class="form-label">Nom complet</label><input type="text" id="patient-name" class="form-control" required></div>
+                            <div style="flex:1"><label class="form-label">Date naissance</label><input type="date" id="patient-dob" class="form-control" required></div>
                         </div>
-                        
-                        <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                            <div style="flex: 1;">
-                                <label class="form-label" for="patient-birthplace">Lieu de naissance *</label>
-                                <input type="text" id="patient-birthplace" class="form-control" placeholder="Ville, Pays" required>
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label" for="patient-phone">Téléphone</label>
-                                <input type="tel" id="patient-phone" class="form-control" placeholder="Numéro de téléphone">
-                            </div>
+                        <div class="mt-2"><label class="form-label">Téléphone</label><input type="text" id="patient-phone" class="form-control"></div>
+                        <div class="mt-2">
+                            <label><input type="checkbox" id="patient-emergency"> Urgence</label>
+                            <label style="margin-left:20px"><input type="checkbox" id="patient-pediatric"> Pédiatrie</label>
                         </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="patient-address">Adresse</label>
-                            <input type="text" id="patient-address" class="form-control" placeholder="Adresse complète">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="patient-responsible">Responsable (pour mineurs)</label>
-                            <input type="text" id="patient-responsible" class="form-control" placeholder="Nom du responsable">
-                        </div>
-                        
-                        <!-- Signes Vitaux -->
-                        <div class="card mt-3 mb-3">
-                            <h3><i class="fas fa-heartbeat"></i> Signes Vitaux</h3>
-                            <div class="vitals-grid">
-                                <div class="vital-item">
-                                    <div class="vital-value" id="vital-temperature-display">--</div>
-                                    <div class="vital-label">Température (°C)</div>
-                                    <input type="number" step="0.1" id="patient-temperature" class="form-control mt-2" placeholder="36.5" min="35" max="42">
-                                </div>
-                                <div class="vital-item">
-                                    <div class="vital-value" id="vital-pressure-display">--/--</div>
-                                    <div class="vital-label">Pression artérielle</div>
-                                    <div class="d-flex" style="gap: 10px; margin-top: 10px;">
-                                        <input type="number" id="patient-systolic" class="form-control" placeholder="120" min="60" max="200">
-                                        <span style="align-self: center;">/</span>
-                                        <input type="number" id="patient-diastolic" class="form-control" placeholder="80" min="40" max="130">
-                                    </div>
-                                </div>
-                                <div class="vital-item">
-                                    <div class="vital-value" id="vital-pulse-display">--</div>
-                                    <div class="vital-label">Pouls (bpm)</div>
-                                    <input type="number" id="patient-pulse" class="form-control mt-2" placeholder="72" min="40" max="200">
-                                </div>
-                                <div class="vital-item">
-                                    <div class="vital-value" id="vital-respiratory-display">--</div>
-                                    <div class="vital-label">Respiration (/min)</div>
-                                    <input type="number" id="patient-respiratory" class="form-control mt-2" placeholder="16" min="8" max="40">
-                                </div>
-                                <div class="vital-item">
-                                    <div class="vital-value" id="vital-oxygen-display">--%</div>
-                                    <div class="vital-label">Saturation O2</div>
-                                    <input type="number" id="patient-oxygen" class="form-control mt-2" placeholder="98" min="70" max="100">
-                                </div>
-                                <div class="vital-item">
-                                    <div class="vital-value" id="vital-weight-display">-- kg</div>
-                                    <div class="vital-label">Poids (kg)</div>
-                                    <input type="number" step="0.1" id="patient-weight" class="form-control mt-2" placeholder="70" min="1" max="200">
-                                </div>
-                                <div class="vital-item">
-                                    <div class="vital-value" id="vital-height-display">-- cm</div>
-                                    <div class="vital-label">Taille (cm)</div>
-                                    <input type="number" id="patient-height" class="form-control mt-2" placeholder="170" min="50" max="250">
-                                </div>
-                            </div>
-                            <div class="form-group mt-3">
-                                <label class="form-label" for="patient-vitals-notes">Notes sur les signes vitaux</label>
-                                <textarea id="patient-vitals-notes" class="form-control" rows="2" placeholder="Observations additionnelles"></textarea>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                            <div style="flex: 1;">
-                                <label class="form-label" for="patient-pediatric">
-                                    <input type="checkbox" id="patient-pediatric">
-                                    Patient Pédiatrique
-                                </label>
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label" for="patient-emergency">
-                                    <input type="checkbox" id="patient-emergency">
-                                    Patient en urgence
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="text-right">
-                            <button type="submit" class="btn">
-                                <i class="fas fa-save"></i> Enregistrer le Patient
-                            </button>
-                        </div>
+                        <button type="submit" class="btn mt-3">Enregistrer</button>
+                        <button type="button" id="generate-patient-card-btn" class="btn btn-secondary mt-3 hidden">Générer Carte Patient</button>
                     </form>
                 </div>
-                
-                <!-- Patient Card Preview -->
-                <div id="print-area" class="print-area">
-                    <div class="patient-card">
-                        <div class="hospital-logo">
-                            <h2>Hôpital Saint-Luc</h2>
-                            <p>Carte d'Identification du Patient</p>
-                        </div>
-                        
-                        <div class="patient-photo-placeholder">
-                            Photo
-                        </div>
-                        
-                        <div class="patient-info">
-                            <div class="patient-info-item">
-                                <div class="patient-info-label">Numéro patient:</div>
-                                <div id="card-patient-id">PA0001</div>
-                            </div>
-                            <div class="patient-info-item">
-                                <div class="patient-info-label">Nom:</div>
-                                <div id="card-patient-name">Jean Dupont</div>
-                            </div>
-                            <div class="patient-info-item">
-                                <div class="patient-info-label">Date de naissance:</div>
-                                <div id="card-patient-dob">15/03/1985</div>
-                            </div>
-                            <div class="patient-info-item">
-                                <div class="patient-info-label">Lieu de naissance:</div>
-                                <div id="card-patient-birthplace">Paris, France</div>
-                            </div>
-                            <div class="patient-info-item">
-                                <div class="patient-info-label">Responsable:</div>
-                                <div id="card-patient-responsible">Marie Dupont</div>
-                            </div>
-                            <div class="patient-info-item">
-                                <div class="patient-info-label">Date d'enregistrement:</div>
-                                <div id="card-patient-date">10/10/2023</div>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center" style="margin-top: 20px; font-size: 0.9rem; color: #777;">
-                            <p>Présentez cette carte à chaque visite</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="patient-card-preview" class="hidden">
-                    <div class="card">
-                        <h3>Carte du Patient - Format 4x6</h3>
-                        <div id="patient-card-display"></div>
-                        
-                        <div class="text-center">
-                            <button id="print-card-btn" class="btn">
-                                <i class="fas fa-print"></i> Imprimer la Carte
-                            </button>
-                            <button id="close-card-btn" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Fermer
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Patients List -->
                 <div class="card">
-                    <h3>Patients enregistrés</h3>
+                    <h3>Liste des Patients</h3>
                     <div class="table-container">
                         <table id="patients-table">
                             <thead>
                                 <tr>
-                                    <th>Numéro</th>
+                                    <th>ID</th>
                                     <th>Nom</th>
-                                    <th>Date de naissance</th>
-                                    <th>Téléphone</th>
-                                    <th>Date d'enregistrement</th>
+                                    <th>Date Naissance</th>
                                     <th>Type</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="patients-table-body">
-                                <!-- Patients will be added here -->
-                            </tbody>
+                            <tbody id="patients-table-body"></tbody>
                         </table>
                     </div>
                 </div>
+                
+                <!-- Carte patient (masquée par défaut) -->
+                <div id="patient-card-container" class="hidden printable">
+                    <div class="patient-card">
+                        <div class="patient-card-header text-center">
+                            <h3 id="card-hospital-name">Hôpital Saint-Luc</h3>
+                            <p id="card-hospital-address">Port-au-Prince, Haïti</p>
+                        </div>
+                        <div class="patient-photo">
+                            <i class="fas fa-user fa-3x" style="color:#666;"></i>
+                        </div>
+                        <div class="text-center">
+                            <h4 id="card-patient-name">Jean Dupont</h4>
+                            <p><strong>ID:</strong> <span id="card-patient-id">PA0001</span></p>
+                            <p><strong>Date Naissance:</strong> <span id="card-patient-dob">01/01/1980</span></p>
+                            <p><strong>Téléphone:</strong> <span id="card-patient-phone">12345678</span></p>
+                            <p><strong>Date d'émission:</strong> <span id="card-issue-date">01/01/2024</span></p>
+                            <div class="mt-3">
+                                <span id="card-patient-type" class="emergency-patient-tag">URGENCE</span>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <p><small>Cette carte doit être présentée à chaque visite</small></p>
+                            <p><small>Valable pour 1 an à partir de la date d'émission</small></p>
+                        </div>
+                    </div>
+                </div>
             </section>
-            
-            <!-- Consultation Content -->
+
             <section id="consultation" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-stethoscope"></i> Consultation Médicale
-                </h2>
-                
+                <h2 class="section-title">Consultation</h2>
                 <div class="card">
-                    <h3>Recherche du Patient</h3>
-                    <div class="d-flex" style="gap: 15px;">
-                        <div style="flex: 1;">
-                            <label class="form-label" for="search-patient-id">Numéro du patient</label>
-                            <input type="text" id="search-patient-id" class="form-control" placeholder="Entrez le numéro du patient">
-                        </div>
-                        <div style="align-self: flex-end;">
-                            <button id="search-patient-btn" class="btn">
-                                <i class="fas fa-search"></i> Rechercher
-                            </button>
-                        </div>
+                    <div class="d-flex" style="gap:15px">
+                        <input type="text" id="search-patient-id" class="form-control" placeholder="ID ou Nom du patient">
+                        <button id="search-patient-btn" class="btn"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 
-                <!-- Patient Info Display -->
-                <div id="consultation-patient-info" class="card hidden">
-                    <h3>Informations du Patient</h3>
-                    <div id="consultation-patient-details">
-                        <!-- Patient details will be added here -->
+                <!-- Section Signes Vitaux -->
+                <div id="vitals-form-container" class="hidden vitals-form">
+                    <h3>Signes Vitaux</h3>
+                    <div class="vitals-grid">
+                        <div><label class="form-label">Tension Artérielle</label><input type="text" id="vital-bp" class="form-control small-input" placeholder="120/80"></div>
+                        <div><label class="form-label">Température (°C)</label><input type="number" id="vital-temp" class="form-control small-input" placeholder="37.0" step="0.1"></div>
+                        <div><label class="form-label">Pouls (bpm)</label><input type="number" id="vital-pulse" class="form-control small-input" placeholder="72"></div>
+                        <div><label class="form-label">Fréquence Resp. (rpm)</label><input type="number" id="vital-resp" class="form-control small-input" placeholder="16"></div>
+                        <div><label class="form-label">Saturation O2 (%)</label><input type="number" id="vital-oxygen" class="form-control small-input" placeholder="98" min="0" max="100"></div>
+                        <div><label class="form-label">Glycémie (mg/dL)</label><input type="number" id="vital-glucose" class="form-control small-input" placeholder="100"></div>
                     </div>
+                    <div class="mt-2">
+                        <label class="form-label">Notes</label>
+                        <textarea id="vital-notes" class="form-control" rows="2" placeholder="Observations additionnelles..."></textarea>
+                    </div>
+                    <button type="button" id="save-vitals-btn" class="btn btn-secondary mt-2">Enregistrer Signes Vitaux</button>
                 </div>
                 
-                <!-- Consultation Form -->
-                <div id="consultation-form-container" class="card hidden">
-                    <h3>Formulaire de Consultation</h3>
-                    <div id="medication-check-results"></div>
+                <div id="consultation-form-container" class="hidden card">
+                    <h3 id="cons-patient-name">Patient</h3>
+                    <div id="vitals-display" class="mb-3"></div>
                     <form id="consultation-form">
-                        <!-- Type de Consultation -->
                         <div class="form-group">
-                            <label class="form-label" for="consultation-type">Type de Consultation *</label>
-                            <div id="consultation-type-selection" class="consultation-type-grid">
-                                <!-- Les types de consultation seront ajoutés dynamiquement -->
-                            </div>
-                            <input type="hidden" id="selected-consultation-type" value="">
-                            <input type="hidden" id="selected-consultation-price" value="0">
-                            <div class="mt-2">
-                                <span id="consultation-price-display" class="service-price">0 Gdes</span>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="consultation-diagnosis">Diagnostic</label>
-                            <textarea id="consultation-diagnosis" class="form-control" rows="3" placeholder="Décrivez le diagnostic"></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Analyses demandées</label>
-                            <div id="lab-analyses-selection">
-                                <!-- Les analyses seront ajoutées dynamiquement -->
-                            </div>
-                            <label class="form-label mt-3" for="consultation-other-analysis">Autres analyses</label>
-                            <textarea id="consultation-other-analysis" class="form-control" rows="2" placeholder="Autres analyses spécifiques"></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Prescription de médicaments</label>
-                            <table class="medication-table">
-                                <thead>
-                                    <tr>
-                                        <th>Médicament</th>
-                                        <th>Dosage</th>
-                                        <th>Fréquence</th>
-                                        <th>Durée</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="medication-table-body">
-                                    <tr>
-                                        <td><input type="text" class="form-control medication-name" placeholder="Paracétamol 500mg"></td>
-                                        <td><input type="text" class="form-control medication-dosage" placeholder="1 comprimé"></td>
-                                        <td><input type="text" class="form-control medication-frequency" placeholder="3 fois par jour"></td>
-                                        <td><input type="text" class="form-control medication-duration" placeholder="5 jours"></td>
-                                        <td><button type="button" class="btn btn-danger remove-medication-btn"><i class="fas fa-trash"></i></button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <button type="button" id="add-medication-row-btn" class="btn btn-secondary mt-2">
-                                <i class="fas fa-plus"></i> Ajouter un médicament
-                            </button>
-                            <div class="mt-2">
-                                <button type="button" id="check-medications-btn" class="btn btn-secondary">
-                                    <i class="fas fa-search"></i> Vérifier la disponibilité
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="consultation-notes">Notes supplémentaires</label>
-                            <textarea id="consultation-notes" class="form-control" rows="2" placeholder="Notes additionnelles"></textarea>
-                        </div>
-                        
-                        <div class="d-flex justify-between">
-                            <button type="button" id="schedule-appointment-btn" class="btn btn-success">
-                                <i class="fas fa-calendar-plus"></i> Prendre Rendez-vous
-                            </button>
-                            <button type="submit" class="btn">
-                                <i class="fas fa-save"></i> Enregistrer la Consultation
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-            
-            <!-- Appointments Content -->
-            <section id="appointments" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-calendar-check"></i> Gestion des Rendez-vous
-                </h2>
-                
-                <!-- New Appointment Form -->
-                <div class="card">
-                    <h3>Nouveau Rendez-vous</h3>
-                    <form id="appointment-form">
-                        <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                            <div style="flex: 1;">
-                                <label class="form-label" for="appointment-patient-id">Numéro du patient *</label>
-                                <input type="text" id="appointment-patient-id" class="form-control" placeholder="Entrez le numéro du patient" required>
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label" for="appointment-doctor">Docteur *</label>
-                                <select id="appointment-doctor" class="form-control" required>
-                                    <option value="">Sélectionner un docteur</option>
-                                    <option value="Dr. Jean Martin">Dr. Jean Martin</option>
-                                    <option value="Dr. Marie Curie">Dr. Marie Curie</option>
-                                    <option value="Dr. Paul Durand">Dr. Paul Durand</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                            <div style="flex: 1;">
-                                <label class="form-label" for="appointment-date">Date *</label>
-                                <input type="date" id="appointment-date" class="form-control" required>
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label" for="appointment-time">Heure *</label>
-                                <select id="appointment-time" class="form-control" required>
-                                    <option value="">Sélectionner une heure</option>
-                                    <option value="08:00">08:00</option>
-                                    <option value="09:00">09:00</option>
-                                    <option value="10:00">10:00</option>
-                                    <option value="11:00">11:00</option>
-                                    <option value="14:00">14:00</option>
-                                    <option value="15:00">15:00</option>
-                                    <option value="16:00">16:00</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="appointment-reason">Raison du rendez-vous</label>
-                            <textarea id="appointment-reason" class="form-control" rows="3" placeholder="Décrivez la raison du rendez-vous"></textarea>
-                        </div>
-                        
-                        <div class="text-right">
-                            <button type="submit" class="btn">
-                                <i class="fas fa-calendar-plus"></i> Planifier le Rendez-vous
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Appointments List -->
-                <div class="card">
-                    <h3>Rendez-vous à venir</h3>
-                    <div id="upcoming-appointments-list">
-                        <!-- Appointments will be added here -->
-                    </div>
-                </div>
-                
-                <!-- Past Appointments -->
-                <div class="card">
-                    <h3>Rendez-vous passés</h3>
-                    <div id="past-appointments-list">
-                        <!-- Past appointments will be added here -->
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Laboratory Content -->
-            <section id="laboratory" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-flask"></i> Laboratoire
-                </h2>
-                
-                <div class="card">
-                    <h3>Recherche des Analyses</h3>
-                    <div class="d-flex" style="gap: 15px;">
-                        <div style="flex: 1;">
-                            <label class="form-label" for="lab-patient-id">Numéro du patient</label>
-                            <input type="text" id="lab-patient-id" class="form-control" placeholder="Entrez le numéro du patient">
-                        </div>
-                        <div style="align-self: flex-end;">
-                            <button id="lab-search-btn" class="btn">
-                                <i class="fas fa-search"></i> Rechercher
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Lab Results -->
-                <div id="lab-results-container" class="hidden">
-                    <!-- Lab results will be added here -->
-                </div>
-                
-                <!-- Pending Analyses -->
-                <div class="card">
-                    <h3>Analyses en Attente</h3>
-                    <div class="table-container">
-                        <table id="pending-analyses-table">
-                            <thead>
-                                <tr>
-                                    <th>Numéro Patient</th>
-                                    <th>Nom du Patient</th>
-                                    <th>Analyses demandées</th>
-                                    <th>Prix total</th>
-                                    <th>Date demande</th>
-                                    <th>Statut paiement</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pending-analyses-body">
-                                <!-- Pending analyses will be added here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Pharmacy Content -->
-            <section id="pharmacy" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-pills"></i> Pharmacie
-                </h2>
-                
-                <div class="card">
-                    <h3>Recherche des Ordonnances</h3>
-                    <div class="d-flex" style="gap: 15px;">
-                        <div style="flex: 1;">
-                            <label class="form-label" for="pharmacy-patient-id">Numéro du patient</label>
-                                    <input type="text" id="pharmacy-patient-id" class="form-control" placeholder="Entrez le numéro du patient">
-                        </div>
-                        <div style="align-self: flex-end;">
-                            <button id="pharmacy-search-btn" class="btn">
-                                <i class="fas fa-search"></i> Rechercher
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Pharmacy Results -->
-                <div id="pharmacy-results-container" class="hidden">
-                    <!-- Pharmacy results will be added here -->
-                </div>
-                
-                <!-- Missing Medication Receipt -->
-                <div id="missing-meds-receipt" class="print-area">
-                    <div class="receipt">
-                        <div class="receipt-header">
-                            <h3>Hôpital Saint-Luc</h3>
-                            <p>Reçu d'achat de médicaments</p>
-                            <p id="receipt-date">Date: </p>
-                        </div>
-                        <div id="receipt-patient-info">
-                            <!-- Patient info will be added here -->
-                        </div>
-                        <h4>Médicaments à acheter:</h4>
-                        <div id="receipt-medications-list">
-                            <!-- Medications will be added here -->
-                        </div>
-                        <div class="receipt-total">
-                            <span>Total estimé:</span>
-                            <span id="receipt-total-amount">0 Gdes</span>
-                        </div>
-                        <p class="text-center" style="margin-top: 15px; font-size: 0.9rem;">
-                            Présentez ce reçu à la pharmacie externe
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Stock Management (Pharmacy can view, Admin only can modify) -->
-                <div id="pharmacy-stock-section">
-                    <div class="card">
-                        <h3>Gestion des Stocks 
-                            <span class="service-price" id="stock-permission-label">Vue seulement</span>
-                        </h3>
-                        <div class="d-flex justify-between mb-3">
-                            <h4>Médicaments en stock</h4>
-                            <button id="add-medication-btn" class="btn btn-success hidden">
-                                <i class="fas fa-plus"></i> Ajouter Médicament
-                            </button>
-                        </div>
-                        
-                        <div class="table-container">
-                            <table id="stock-table">
-                                <thead>
-                                    <tr>
-                                        <th>Code</th>
-                                        <th>Médicament</th>
-                                        <th>Quantité en stock</th>
-                                        <th>Seuil d'alerte</th>
-                                        <th>Prix unitaire</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="stock-table-body">
-                                    <!-- Stock items will be added here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Cashier Content -->
-            <section id="cashier" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-cash-register"></i> Caisse
-                </h2>
-                
-                <!-- External Services -->
-                <div id="external-services-section" class="card">
-                    <h3>Services Externes (Sans Consultation)</h3>
-                    <p class="mb-3">Services disponibles directement sans consultation médicale</p>
-                    
-                    <div id="external-services-display" class="external-services-grid">
-                        <!-- Services externes seront chargés dynamiquement -->
-                    </div>
-                    
-                    <div class="d-flex" style="gap: 15px; margin-top: 20px;">
-                        <div style="flex: 1;">
-                            <label class="form-label" for="external-service-patient-id">Numéro du patient</label>
-                            <input type="text" id="external-service-patient-id" class="form-control" placeholder="Entrez le numéro du patient">
-                        </div>
-                        <div style="flex: 1;">
-                            <label class="form-label" for="selected-service">Service sélectionné</label>
-                            <input type="text" id="selected-service" class="form-control" readonly>
-                            <input type="hidden" id="selected-service-price">
-                        </div>
-                    </div>
-                    
-                    <div class="text-right mt-3">
-                        <button id="add-external-service-btn" class="btn btn-success">
-                            <i class="fas fa-plus"></i> Ajouter le Service
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>Totaux de la Caisse</h3>
-                    <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                        <div style="flex: 1;">
-                            <h4 id="today-total">Total aujourd'hui: 0 Gdes</h4>
-                        </div>
-                        <div style="flex: 1;">
-                            <h4 id="week-total">Total cette semaine: 0 Gdes</h4>
-                        </div>
-                    </div>
-                    
-                    <div class="text-right mt-3">
-                        <button id="print-receipt-btn" class="btn" disabled>
-                            <i class="fas fa-print"></i> Imprimer le reçu
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>Recherche des Factures</h3>
-                    <div class="d-flex" style="gap: 15px;">
-                        <div style="flex: 1;">
-                            <label class="form-label" for="cashier-patient-id">Numéro du patient</label>
-                            <input type="text" id="cashier-patient-id" class="form-control" placeholder="Entrez le numéro du patient">
-                        </div>
-                        <div style="align-self: flex-end;">
-                            <button id="cashier-search-btn" class="btn">
-                                <i class="fas fa-search"></i> Rechercher
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Payment Receipt -->
-                <div id="payment-receipt" class="print-area">
-                    <div class="receipt">
-                        <div class="receipt-header">
-                            <h3>Hôpital Saint-Luc</h3>
-                            <p>Reçu de paiement</p>
-                            <p id="payment-receipt-date">Date: </p>
-                            <p id="payment-receipt-number">Reçu #: </p>
-                            <p id="payment-receipt-method">Moyen de paiement: </p>
-                        </div>
-                        <div id="payment-receipt-patient-info">
-                            <!-- Patient info will be added here -->
-                        </div>
-                        <h4>Services payés:</h4>
-                        <div id="payment-receipt-services">
-                            <!-- Services will be added here -->
-                        </div>
-                        <div class="receipt-total">
-                            <span>Total payé:</span>
-                            <span id="payment-receipt-total">0 Gdes</span>
-                        </div>
-                        <p class="text-center" style="margin-top: 15px; font-size: 0.9rem;">
-                            Merci pour votre visite
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Payment Methods Selection -->
-                <div id="payment-methods-container" class="hidden">
-                    <div class="card">
-                        <h3>Sélection du moyen de paiement</h3>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="payment-method-select">Méthode de paiement *</label>
-                            <select id="payment-method-select" class="form-control" required>
-                                <option value="">Sélectionner une méthode</option>
-                                <option value="cash">Cash</option>
-                                <option value="moncash">Mon Cash</option>
-                                <option value="natcash">NatCash</option>
-                                <option value="debit">Carte Débit</option>
-                                <option value="credit">Carte Credit</option>
-                                <option value="mastercard">Master Card</option>
-                                <option value="bank-transfer">Virement Bancaire</option>
+                            <label class="form-label">Type de Consultation</label>
+                            <select id="consultation-type" class="form-control">
+                                <option value="">Sélectionner un type</option>
                             </select>
                         </div>
                         
-                        <!-- Cash Payment -->
-                        <div id="cash-payment-details" class="payment-details hidden">
-                            <h4>Paiement en Cash</h4>
-                            <div class="form-group">
-                                <label class="form-label" for="cash-amount">Montant reçu</label>
-                                <input type="number" id="cash-amount" class="form-control" placeholder="Montant en Gdes">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" id="cash-change">Monnaie à rendre: 0 Gdes</label>
-                            </div>
-                        </div>
+                        <label class="form-label">Diagnostic</label>
+                        <textarea id="consultation-diagnosis" class="form-control" rows="3"></textarea>
                         
-                        <!-- Mobile Payment Details -->
-                        <div id="mobile-payment-details" class="payment-details hidden">
-                            <h4>Paiement Mobile (MonCash/NatCash)</h4>
-                            <p class="mb-3">Veuillez utiliser les liens suivants pour effectuer le paiement:</p>
-                            
-                            <div class="text-center mb-3">
-                                <a href="#" id="moncash-link" class="payment-link moncash" target="_blank">
-                                    <i class="fas fa-mobile-alt"></i> Payer avec MonCash
-                                </a>
-                                <a href="#" id="natcash-link" class="payment-link natcash" target="_blank">
-                                    <i class="fas fa-phone-alt"></i> Payer avec NatCash
-                                </a>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="mobile-transaction-id">ID de Transaction *</label>
-                                <input type="text" id="mobile-transaction-id" class="form-control" placeholder="Entrez l'ID de transaction (ex: MC123456)">
-                                <small>ID reçu après paiement via l'application mobile</small>
-                            </div>
-                        </div>
+                        <label class="form-label mt-2">Médicaments (Format: Nom - Dosage)
+                            <button type="button" id="check-medication-btn" class="check-availability-btn"><i class="fas fa-search"></i> Vérifier disponibilité</button>
+                        </label>
+                        <textarea id="consultation-meds" class="form-control" placeholder="Ex: Paracétamol - 500mg" rows="2"></textarea>
                         
-                        <!-- Card Payment Details -->
-                        <div id="card-payment-details" class="payment-details hidden">
-                            <h4>Détails de la carte</h4>
-                            <div class="form-group">
-                                <label class="form-label" for="card-number">Numéro de carte</label>
-                                <input type="text" id="card-number" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19">
-                            </div>
-                            <div class="d-flex" style="gap: 15px;">
-                                <div style="flex: 1;">
-                                    <label class="form-label" for="card-expiry">Date d'expiration</label>
-                                    <input type="text" id="card-expiry" class="form-control" placeholder="MM/AA" maxlength="5">
-                                </div>
-                                <div style="flex: 1;">
-                                    <label class="form-label" for="card-cvv">CVV</label>
-                                    <input type="password" id="card-cvv" class="form-control" placeholder="123" maxlength="4">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="card-holder">Nom du titulaire</label>
-                                <input type="text" id="card-holder" class="form-control" placeholder="Nom comme sur la carte">
-                            </div>
-                        </div>
+                        <label class="form-label mt-2">Analyses demandées</label>
+                        <div id="lab-analyses-selection" style="display:grid; grid-template-columns: repeat(2,1fr); gap:10px;"></div>
                         
-                        <!-- Bank Transfer Details -->
-                        <div id="bank-transfer-details" class="payment-details hidden">
-                            <h4>Détails du virement bancaire</h4>
-                            <div class="form-group">
-                                <label class="form-label">Banque: Unibank</label>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Numéro de compte: 123-456-789-0</label>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Nom du compte: Hôpital Saint-Luc</label>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="transfer-reference">Référence du virement *</label>
-                                <input type="text" id="transfer-reference" class="form-control" placeholder="Référence unique">
-                            </div>
-                        </div>
-                        
-                        <div class="text-center mt-3">
-                            <button id="confirm-payment-btn" class="btn btn-success">
-                                <i class="fas fa-check"></i> Confirmer le Paiement
-                            </button>
-                            <button id="cancel-payment-btn" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Annuler
-                            </button>
-                        </div>
-                    </div>
+                        <button type="submit" class="btn mt-3">Enregistrer Consultation</button>
+                    </form>
                 </div>
-                
-                <!-- Payment Details -->
-                <div id="cashier-results-container" class="hidden">
-                    <!-- Payment details will be added here -->
-                </div>
-                
-                <!-- Transactions -->
+            </section>
+
+            <section id="laboratory" class="content">
+                <h2 class="section-title">Laboratoire</h2>
                 <div class="card">
-                    <h3>Transactions Récentes</h3>
-                    <div class="table-container">
-                        <table id="transactions-table">
-                            <thead>
-                                <tr>
-                                    <th>Numéro Patient</th>
-                                    <th>Nom</th>
-                                    <th>Service</th>
-                                    <th>Montant</th>
-                                    <th>Date</th>
-                                    <th>Moyen de paiement</th>
-                                    <th>Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transactions-table-body">
-                                <!-- Transactions will be added here -->
-                            </tbody>
-                        </table>
+                    <h3>Recherche Patient</h3>
+                    <div class="d-flex" style="gap:15px">
+                        <input type="text" id="lab-patient-id" class="form-control" placeholder="Entrez ID ou Nom du patient">
+                        <button type="button" id="lab-search-btn" class="btn"><i class="fas fa-search"></i> Rechercher</button>
                     </div>
+                </div>
+                <div id="lab-results-container" class="hidden"></div>
+            </section>
+
+            <section id="pharmacy" class="content">
+                <h2 class="section-title">Pharmacie</h2>
+                <div class="card">
+                    <h3>Délivrance Médicaments</h3>
+                    <div class="d-flex" style="gap:15px">
+                        <input type="text" id="pharmacy-patient-id" class="form-control" placeholder="Entrez ID ou Nom du patient">
+                        <button type="button" id="pharmacy-search-btn" class="btn"><i class="fas fa-search"></i> Rechercher</button>
+                    </div>
+                </div>
+                <div id="pharmacy-results-container" class="hidden"></div>
+                
+                <div class="card mt-3">
+                    <h3>Stock</h3>
+                    <div class="table-container">
+                        <table id="stock-table"><thead><tr><th>Médicament</th><th>Quantité</th><th>Prix</th><th>Actions</th></tr></thead><tbody id="stock-table-body"></tbody></table>
+                    </div>
+                    
+                    <div id="add-medication-form" class="hidden mt-3">
+                        <h4>Ajouter un médicament</h4>
+                        <div class="d-flex" style="gap:15px">
+                            <input type="text" id="new-medication-name" class="form-control" placeholder="Nom du médicament">
+                            <input type="number" id="new-medication-quantity" class="form-control" placeholder="Quantité" min="1">
+                            <input type="number" id="new-medication-price" class="form-control" placeholder="Prix" min="0">
+                            <button type="button" id="add-medication-btn" class="btn btn-success">Ajouter</button>
+                        </div>
+                    </div>
+                    
+                    <button id="toggle-add-medication-btn" class="btn btn-secondary mt-2"><i class="fas fa-plus"></i> Ajouter Médicament</button>
                 </div>
             </section>
             
-            <!-- Administration Content -->
+            <section id="cashier" class="content">
+                 <h2 class="section-title">Caisse</h2>
+                 <div class="card">
+                     <h3>Recherche Patient pour Paiement</h3>
+                     <div class="d-flex" style="gap:15px">
+                         <input type="text" id="cashier-patient-id" class="form-control" placeholder="ID ou Nom du patient">
+                         <button type="button" id="cashier-search-btn" class="btn"><i class="fas fa-search"></i> Rechercher</button>
+                     </div>
+                 </div>
+                 
+                 <div id="cashier-results-container" class="hidden"></div>
+                 
+                 <!-- Médicaments hors stock -->
+                 <div id="out-of-stock-container" class="hidden card mt-3">
+                     <h3>Médicaments Hors Stock</h3>
+                     <div id="out-of-stock-list"></div>
+                     <div class="print-controls">
+                         <button id="print-out-of-stock-btn" class="btn btn-warning"><i class="fas fa-print"></i> Imprimer Liste</button>
+                     </div>
+                 </div>
+                 
+                 <!-- Reçu global -->
+                 <div id="global-receipt-container" class="hidden printable">
+                     <div class="print-receipt">
+                         <div class="text-center">
+                             <h3 id="receipt-hospital-name">Hôpital Saint-Luc</h3>
+                             <p id="receipt-hospital-address">Port-au-Prince, Haïti</p>
+                             <p id="receipt-hospital-phone">Tél: (509) 1234-5678</p>
+                         </div>
+                         <hr>
+                         <div>
+                             <p><strong>Patient:</strong> <span id="receipt-patient-name">Jean Dupont</span></p>
+                             <p><strong>ID Patient:</strong> <span id="receipt-patient-id">PA0001</span></p>
+                             <p><strong>Date:</strong> <span id="receipt-date">01/01/2024</span></p>
+                             <p><strong>Heure:</strong> <span id="receipt-time">10:30</span></p>
+                         </div>
+                         <hr>
+                         <div id="receipt-services-list">
+                             <!-- Services ajoutés dynamiquement -->
+                         </div>
+                         <hr>
+                         <div class="receipt-item">
+                             <span><strong>TOTAL:</strong></span>
+                             <span><strong id="receipt-total-amount">0</strong> Gdes</span>
+                         </div>
+                         <div id="receipt-unpaid-section" class="hidden">
+                             <hr>
+                             <p><strong>Services Non Payés:</strong></p>
+                             <div id="receipt-unpaid-list"></div>
+                         </div>
+                         <hr>
+                         <div class="text-center">
+                             <p><strong>Moyen de Paiement:</strong> <span id="receipt-payment-method">Cash</span></p>
+                             <p>Merci pour votre confiance!</p>
+                             <p><small>Reçu #<span id="receipt-number">TR001</span></small></p>
+                         </div>
+                     </div>
+                 </div>
+            </section>
+            
+            <section id="appointments" class="content"><h2 class="section-title">Rendez-vous</h2><p>Gestion des RDV.</p></section>
+            
             <section id="administration" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-chart-bar"></i> Administration
-                </h2>
-                
-                <div class="stats-container">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #1a6bca;">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3 id="total-revenue">0 Gdes</h3>
-                            <p>Revenus totaux</p>
-                        </div>
+                <h2 class="section-title">Administration - Statistiques</h2>
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card">
+                        <h3><i class="fas fa-money-bill-wave"></i> Revenus Totaux</h3>
+                        <h2 id="total-revenue">0 Gdes</h2>
                     </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #28a745;">
-                            <i class="fas fa-user-check"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3 id="total-patients">0</h3>
-                            <p>Patients totaux</p>
-                        </div>
+                    <div class="admin-stat-card">
+                        <h3><i class="fas fa-stethoscope"></i> Consultations</h3>
+                        <h2 id="admin-consultations">0</h2>
+                        <p>Montant: <span id="consultations-amount">0 Gdes</span></p>
                     </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #ffc107;">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3 id="total-appointments">0</h3>
-                            <p>Rendez-vous totaux</p>
-                        </div>
+                    <div class="admin-stat-card">
+                        <h3><i class="fas fa-flask"></i> Analyses</h3>
+                        <h2 id="admin-analyses">0</h2>
+                        <p>Montant: <span id="analyses-amount">0 Gdes</span></p>
                     </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #dc3545;">
-                            <i class="fas fa-flask"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3 id="total-analyses">0</h3>
-                            <p>Analyses totales</p>
-                        </div>
+                    <div class="admin-stat-card">
+                        <h3><i class="fas fa-pills"></i> Médicaments</h3>
+                        <h2 id="admin-medications">0</h2>
+                        <p>Montant: <span id="medications-amount">0 Gdes</span></p>
                     </div>
                 </div>
                 
                 <div class="card">
                     <h3>Statistiques par Service</h3>
                     <div class="table-container">
-                        <table id="service-stats-table">
+                        <table id="admin-services-table">
                             <thead>
                                 <tr>
                                     <th>Service</th>
-                                    <th>Prix unitaire</th>
-                                    <th>Nombre de visites</th>
-                                    <th>Revenus générés</th>
+                                    <th>Nombre</th>
+                                    <th>Montant Total</th>
+                                    <th>Moyenne par Service</th>
                                 </tr>
                             </thead>
-                            <tbody id="service-stats-body">
-                                <!-- Service stats will be added here -->
-                            </tbody>
+                            <tbody id="admin-services-table-body"></tbody>
                         </table>
                     </div>
                 </div>
                 
                 <div class="card">
-                    <h3>Performance des Employés (Aujourd'hui)</h3>
+                    <h3>Transactions Récentes</h3>
                     <div class="table-container">
-                        <table id="employee-stats-table">
-                            <thead>
-                                <tr>
-                                    <th>Employé</th>
-                                    <th>Service</th>
-                                    <th>Patients traités</th>
-                                    <th>Revenus générés</th>
-                                </tr>
-                            </thead>
-                            <tbody id="employee-stats-body">
-                                <!-- Employee stats will be added here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>Transactions Journalières</h3>
-                    <div class="table-container">
-                        <table id="daily-transactions-table">
+                        <table id="transactions-table">
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>Consultations</th>
-                                    <th>Analyses</th>
-                                    <th>Services externes</th>
-                                    <th>Pharmacie</th>
-                                    <th>Total jour</th>
+                                    <th>Patient</th>
+                                    <th>Services</th>
+                                    <th>Montant</th>
+                                    <th>Moyen de Paiement</th>
+                                    <th>Agent</th>
                                 </tr>
                             </thead>
-                            <tbody id="daily-transactions-body">
-                                <!-- Daily transactions will be added here -->
-                            </tbody>
+                            <tbody id="transactions-table-body"></tbody>
                         </table>
                     </div>
                 </div>
             </section>
-            
-            <!-- Employees Content -->
-            <section id="employees" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-users"></i> Gestion des Employés
-                </h2>
+
+            <section id="settings" class="content">
+                <h2 class="section-title"><i class="fas fa-cog"></i> Paramètres du Système</h2>
                 
-                <!-- Employee Management Form (Admin only) -->
-                <div id="employee-management-form" class="card hidden">
-                    <h3 id="employee-form-title">Ajouter un Employé</h3>
-                    <form id="employee-form">
-                        <input type="hidden" id="employee-edit-id">
-                        
-                        <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                            <div style="flex: 1;">
-                                <label class="form-label" for="employee-form-id">ID Employé *</label>
-                                <input type="text" id="employee-form-id" class="form-control" placeholder="EMP001" readonly>
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label" for="employee-form-name">Nom complet *</label>
-                                <input type="text" id="employee-form-name" class="form-control" placeholder="Nom et prénom" required>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                            <div style="flex: 1;">
-                                <label class="form-label" for="employee-form-role">Rôle *</label>
-                                <select id="employee-form-role" class="form-control" required>
-                                    <option value="">Sélectionner un rôle</option>
-                                    <option value="admin">Administrateur</option>
-                                    <option value="doctor">Docteur</option>
-                                    <option value="lab">Technicien de Laboratoire</option>
-                                    <option value="pharmacy">Pharmacien</option>
-                                    <option value="reception">Réceptionniste</option>
-                                    <option value="cashier">Caissier</option>
-                                </select>
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label" for="employee-form-pin">Code PIN *</label>
-                                <input type="password" id="employee-form-pin" class="form-control" placeholder="Code à 4 chiffres" maxlength="4" required>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                            <div style="flex: 1;">
-                                <label class="form-label" for="employee-form-email">Email</label>
-                                <input type="email" id="employee-form-email" class="form-control" placeholder="email@hopital.fr">
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label" for="employee-form-phone">Téléphone</label>
-                                <input type="tel" id="employee-form-phone" class="form-control" placeholder="Numéro de téléphone">
-                            </div>
-                        </div>
-                        
+                <div class="card">
+                    <h3>Informations de l'Hôpital</h3>
+                    <div class="hospital-info-form">
                         <div class="form-group">
-                            <label class="form-label" for="employee-form-access">Droits d'accès</label>
-                            <textarea id="employee-form-access" class="form-control" rows="3" placeholder="Description des droits d'accès"></textarea>
+                            <label class="form-label">Nom de l'Hôpital</label>
+                            <input type="text" id="hospital-name" class="form-control" value="Hôpital Saint-Luc">
                         </div>
-                        
-                        <div class="d-flex justify-between">
-                            <button type="button" id="cancel-employee-form-btn" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Annuler
-                            </button>
-                            <button type="submit" class="btn">
-                                <i class="fas fa-save"></i> Enregistrer
-                            </button>
+                        <div class="form-group">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" id="hospital-address" class="form-control" value="Port-au-Prince, Haïti">
                         </div>
-                    </form>
-                </div>
-                
-                <div class="card">
-                    <h3>Pointage des Employés</h3>
-                    <div class="d-flex" style="gap: 20px; margin-bottom: 20px;">
-                        <div style="flex: 1;">
-                            <label class="form-label" for="employee-id">ID Employé</label>
-                            <input type="text" id="employee-id" class="form-control" placeholder="Entrez votre ID employé">
+                        <div class="form-group">
+                            <label class="form-label">Téléphone</label>
+                            <input type="text" id="hospital-phone" class="form-control" value="(509) 1234-5678">
                         </div>
-                        <div style="flex: 1;">
-                            <label class="form-label" for="employee-pin">Code PIN</label>
-                            <input type="password" id="employee-pin" class="form-control" placeholder="Entrez votre code PIN">
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex" style="gap: 15px;">
-                        <button id="check-in-btn" class="btn">
-                            <i class="fas fa-sign-in-alt"></i> Pointage Entrée
-                        </button>
-                        <button id="check-out-btn" class="btn btn-secondary">
-                            <i class="fas fa-sign-out-alt"></i> Pointage Sortie
-                        </button>
-                        <button id="face-id-btn" class="btn btn-success">
-                            <i class="fas fa-id-badge"></i> Simuler Face ID
-                        </button>
-                        <button id="add-employee-btn" class="btn btn-success hidden">
-                            <i class="fas fa-plus"></i> Ajouter Employé
-                        </button>
+                        <button type="button" id="save-hospital-info-btn" class="btn btn-success">Enregistrer</button>
                     </div>
                 </div>
                 
-                <!-- Employee Presence -->
                 <div class="card">
-                    <h3>Présence Aujourd'hui</h3>
+                    <h3>Gestion des Employés</h3>
                     <div class="table-container">
-                        <table id="presence-table">
+                        <table id="employees-table">
                             <thead>
                                 <tr>
-                                    <th>Employé</th>
-                                    <th>Service</th>
-                                    <th>Heure d'arrivée</th>
-                                    <th>Heure de départ</th>
-                                    <th>Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody id="presence-table-body">
-                                <!-- Presence records will be added here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Employee List (Admin only) -->
-                <div id="employee-admin-section" class="hidden">
-                    <div class="card">
-                        <h3>Liste des Employés</h3>
-                        <div class="table-container">
-                            <table id="employees-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nom</th>
-                                        <th>Service</th>
-                                        <th>Email</th>
-                                        <th>Téléphone</th>
-                                        <th>Droits d'accès</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="employees-table-body">
-                                    <!-- Employees will be added here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Emergency Content -->
-            <section id="emergency" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-ambulance"></i> Service d'Urgence
-                </h2>
-                
-                <div class="emergency-section">
-                    <div class="emergency-header">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Service d'Urgence - Traitement Prioritaire</h3>
-                    </div>
-                    <p>Dans cette section, les patients en urgence peuvent recevoir tous les services nécessaires sans paiement immédiat. Le paiement sera effectué ultérieurement à la caisse.</p>
-                    
-                    <div class="d-flex" style="gap: 15px; margin-top: 20px;">
-                        <div style="flex: 1;">
-                            <label class="form-label" for="emergency-patient-id">Numéro du patient (URG*)</label>
-                            <input type="text" id="emergency-patient-id" class="form-control" placeholder="Ex: URG001, URG-PED001">
-                        </div>
-                        <div style="align-self: flex-end;">
-                            <button id="emergency-search-btn" class="btn btn-danger">
-                                <i class="fas fa-search"></i> Rechercher Patient Urgence
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Emergency Patient Info -->
-                <div id="emergency-patient-info" class="card hidden">
-                    <h3>Patient en Urgence</h3>
-                    <div id="emergency-patient-details">
-                        <!-- Patient details will be added here -->
-                    </div>
-                </div>
-                
-                <!-- Emergency Services -->
-                <div id="emergency-services-container" class="hidden">
-                    <div class="card">
-                        <h3>Services d'Urgence</h3>
-                        <p class="mb-3">Tous les services seront facturés et le patient devra régler à la caisse avant de quitter l'hôpital.</p>
-                        
-                        <div class="d-flex" style="gap: 15px; margin-bottom: 20px;">
-                            <button id="emergency-consultation-btn" class="btn" style="flex: 1;">
-                                <i class="fas fa-stethoscope"></i> Consultation d'Urgence
-                                <span class="service-price">800 Gdes</span>
-                            </button>
-                            <button id="emergency-lab-btn" class="btn" style="flex: 1;">
-                                <i class="fas fa-flask"></i> Analyses d'Urgence
-                                <span class="service-price">500 Gdes</span>
-                            </button>
-                            <button id="emergency-pharmacy-btn" class="btn" style="flex: 1;">
-                                <i class="fas fa-pills"></i> Médicaments d'Urgence
-                            </button>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="emergency-notes">Notes médicales d'urgence</label>
-                            <textarea id="emergency-notes" class="form-control" rows="3" placeholder="État du patient, mesures prises, observations..."></textarea>
-                        </div>
-                        
-                        <div class="text-right">
-                            <button id="save-emergency-record-btn" class="btn btn-danger">
-                                <i class="fas fa-save"></i> Enregistrer le Dossier d'Urgence
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Emergency Transactions -->
-                    <div class="card">
-                        <h3>Transactions d'Urgence</h3>
-                        <div id="emergency-transactions-list">
-                            <!-- Emergency transactions will be added here -->
-                        </div>
-                        <div class="text-right mt-3">
-                            <button id="print-emergency-bill-btn" class="btn">
-                                <i class="fas fa-print"></i> Imprimer la Facture d'Urgence
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Current Emergency Patients -->
-                <div class="card">
-                    <h3>Patients en Urgence Actifs</h3>
-                    <div class="table-container">
-                        <table id="emergency-patients-table">
-                            <thead>
-                                <tr>
-                                    <th>Numéro</th>
                                     <th>Nom</th>
-                                    <th>Heure d'admission</th>
-                                    <th>État</th>
-                                    <th>Montant dû</th>
+                                    <th>Rôle</th>
+                                    <th>Identifiant</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="emergency-patients-body">
-                                <!-- Emergency patients will be added here -->
-                            </tbody>
+                            <tbody id="employees-table-body"></tbody>
                         </table>
                     </div>
+                    
+                    <div class="employee-form">
+                        <h4>Ajouter un Employé</h4>
+                        <div class="d-flex" style="gap:15px">
+                            <input type="text" id="new-employee-name" class="form-control" placeholder="Nom complet">
+                            <select id="new-employee-role" class="form-control">
+                                <option value="">Sélectionner un rôle</option>
+                                <option value="admin">Administrateur</option>
+                                <option value="doctor">Docteur</option>
+                                <option value="lab">Technicien Labo</option>
+                                <option value="pharmacy">Pharmacien</option>
+                                <option value="reception">Réceptionniste</option>
+                                <option value="cashier">Caissier</option>
+                            </select>
+                            <input type="text" id="new-employee-id" class="form-control" placeholder="Identifiant">
+                            <input type="password" id="new-employee-password" class="form-control" placeholder="Mot de passe">
+                            <button type="button" id="add-employee-btn" class="btn btn-success">Ajouter</button>
+                        </div>
+                    </div>
                 </div>
-            </section>
-            
-            <!-- Settings Content -->
-            <section id="settings" class="content">
-                <h2 class="section-title">
-                    <i class="fas fa-cog"></i> Paramètres du Système
-                </h2>
                 
                 <div class="card">
                     <h3>Gestion des Services</h3>
                     
-                    <!-- Types de Consultation -->
-                    <div class="setting-card">
-                        <h4><i class="fas fa-stethoscope"></i> Types de Consultation</h4>
-                        <div id="consultation-types-list">
-                            <!-- Les types de consultation seront ajoutés ici dynamiquement -->
-                        </div>
+                    <div class="setting-card" style="margin-bottom:20px; border:1px solid #ddd; padding:15px; border-radius:5px;">
+                        <h4>Types de Consultation</h4>
+                        <div id="consultation-types-list"></div>
                         <div class="d-flex" style="gap: 15px; margin-top: 15px;">
-                            <input type="text" id="new-consultation-type" class="form-control" placeholder="Nouveau type de consultation">
-                            <input type="number" id="new-consultation-price" class="form-control" placeholder="Prix (Gdes)" min="0" step="50">
-                            <button id="add-consultation-type-btn" class="btn btn-success">
-                                <i class="fas fa-plus"></i> Ajouter
-                            </button>
+                            <input type="text" id="new-consultation-type" class="form-control" placeholder="Nouveau type">
+                            <input type="number" id="new-consultation-price" class="form-control" placeholder="Prix (Gdes)">
+                            <button type="button" id="add-consultation-type-btn" class="btn btn-success"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                     
-                    <!-- Services Externes -->
-                    <div class="setting-card">
-                        <h4><i class="fas fa-band-aid"></i> Services Externes</h4>
-                        <div id="external-services-list-settings">
-                            <!-- Les services externes seront ajoutés ici dynamiquement -->
-                        </div>
+                    <div class="setting-card" style="margin-bottom:20px; border:1px solid #ddd; padding:15px; border-radius:5px;">
+                        <h4>Services Externes</h4>
+                        <div id="external-services-list-settings"></div>
                         <div class="d-flex" style="gap: 15px; margin-top: 15px;">
-                            <input type="text" id="new-external-service" class="form-control" placeholder="Nouveau service externe">
-                            <input type="number" id="new-external-service-price" class="form-control" placeholder="Prix (Gdes)" min="0" step="10">
-                            <button id="add-external-service-settings-btn" class="btn btn-success">
-                                <i class="fas fa-plus"></i> Ajouter
-                            </button>
+                            <input type="text" id="new-external-service" class="form-control" placeholder="Nouveau service">
+                            <input type="number" id="new-external-service-price" class="form-control" placeholder="Prix (Gdes)">
+                            <button type="button" id="add-external-service-settings-btn" class="btn btn-success"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                     
-                    <!-- Analyses de Laboratoire -->
-                    <div class="setting-card">
-                        <h4><i class="fas fa-flask"></i> Analyses de Laboratoire</h4>
-                        <div id="lab-analyses-list-settings">
-                            <!-- Les analyses seront ajoutées ici dynamiquement -->
-                        </div>
+                    <div class="setting-card" style="border:1px solid #ddd; padding:15px; border-radius:5px;">
+                        <h4>Analyses de Laboratoire</h4>
+                        <div id="lab-analyses-list-settings"></div>
                         <div class="d-flex" style="gap: 15px; margin-top: 15px;">
                             <input type="text" id="new-lab-analysis" class="form-control" placeholder="Nouvelle analyse">
-                            <input type="number" id="new-lab-analysis-price" class="form-control" placeholder="Prix (Gdes)" min="0" step="50">
-                            <button id="add-lab-analysis-settings-btn" class="btn btn-success">
-                                <i class="fas fa-plus"></i> Ajouter
-                            </button>
+                            <input type="number" id="new-lab-analysis-price" class="form-control" placeholder="Prix (Gdes)">
+                            <button type="button" id="add-lab-analysis-settings-btn" class="btn btn-success"><i class="fas fa-plus"></i></button>
                         </div>
-                    </div>
-                    
-                    <!-- Prix des Urgences -->
-                    <div class="setting-card">
-                        <h4><i class="fas fa-ambulance"></i> Prix des Services d'Urgence</h4>
-                        <div class="form-group">
-                            <label class="form-label" for="emergency-consultation-price">Consultation d'urgence</label>
-                            <input type="number" id="emergency-consultation-price" class="form-control" min="0" step="50">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="emergency-analysis-price">Analyse d'urgence</label>
-                            <input type="number" id="emergency-analysis-price" class="form-control" min="0" step="50">
-                        </div>
-                        <button id="save-emergency-prices-btn" class="btn">
-                            <i class="fas fa-save"></i> Enregistrer les prix d'urgence
-                        </button>
-                    </div>
-                    
-                    <!-- Configuration Générale -->
-                    <div class="setting-card">
-                        <h4><i class="fas fa-sliders-h"></i> Configuration Générale</h4>
-                        <div class="form-group">
-                            <label class="form-label" for="hospital-name">Nom de l'hôpital</label>
-                            <input type="text" id="hospital-name" class="form-control" value="Hôpital Saint-Luc">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="hospital-address">Adresse</label>
-                            <input type="text" id="hospital-address" class="form-control" value="123 Rue de la Santé, Port-au-Prince">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="hospital-phone">Téléphone</label>
-                            <input type="tel" id="hospital-phone" class="form-control" value="+509 2812 3456">
-                        </div>
-                        <button id="save-general-settings-btn" class="btn">
-                            <i class="fas fa-save"></i> Enregistrer la configuration
-                        </button>
                     </div>
                 </div>
             </section>
         </div>
     </div>
+    
+    <div id="print-container"></div>
 
-    <!-- Print Container for printing -->
-    <div id="print-container" class="print-container"></div>
+<script>
+// --- STATE MANAGEMENT ---
+const state = {
+    currentUser: null,
+    currentRole: null,
+    patients: [],
+    consultations: [],
+    analyses: [],
+    prescriptions: [],
+    payments: [],
+    transactions: [],
+    stock: [
+        {id: 'MED001', medication: 'Paracétamol 500mg', quantity: 100, price: 50},
+        {id: 'MED002', medication: 'Amoxicilline', quantity: 50, price: 150}
+    ],
+    consultationTypes: [
+        { id: 1, name: 'Générale', price: 500, active: true },
+        { id: 2, name: 'Pédiatrique', price: 300, active: true }
+    ],
+    labAnalyses: [
+        { id: 1, name: 'Hémogramme', price: 300, active: true },
+        { id: 2, name: 'Malaria', price: 200, active: true }
+    ],
+    externalServices: [
+        { id: 1, name: 'Injection', price: 100, active: true }
+    ],
+    employees: [
+        { id: 'EMP001', name: 'Admin Principal', role: 'admin', username: 'admin', password: '1234' },
+        { id: 'EMP002', name: 'Dr. Jean Smith', role: 'doctor', username: 'doctor', password: '1234' }
+    ],
+    hospitalInfo: {
+        name: 'Hôpital Saint-Luc',
+        address: 'Port-au-Prince, Haïti',
+        phone: '(509) 1234-5678'
+    },
+    counter: 1,
+    patientVitals: {} // Stocke les signes vitaux par patientId
+};
 
-    <script src="script.js"></script>
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    initApp();
+});
+
+function initApp() {
+    setupLogin();
+    setupNavigation();
+    setupPatients();
+    setupConsultation();
+    setupPharmacy();
+    setupLaboratory();
+    setupCashier();
+    setupSettings();
+    loadDemoData();
+    updateDashboard();
+    updateAdminStats();
+    updateHospitalInfoDisplay();
+}
+
+// --- LOGIN & NAVIGATION ---
+function setupLogin() {
+    const roleBtns = document.querySelectorAll('.login-role-btn');
+    roleBtns.forEach(btn => btn.addEventListener('click', function() {
+        roleBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+    }));
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const selectedRole = document.querySelector('.login-role-btn.active').dataset.role;
+        
+        // Vérifier les identifiants
+        const employee = state.employees.find(emp => 
+            emp.username === username && emp.password === password && emp.role === selectedRole
+        );
+        
+        if (!employee && !(username === 'admin' && password === '1234' && selectedRole === 'admin')) {
+            showAlert("Nom d'utilisateur ou mot de passe incorrect", 'danger');
+            return;
+        }
+        
+        state.currentUser = username;
+        state.currentRole = selectedRole;
+        document.getElementById('current-username').textContent = employee ? employee.name : username;
+        document.getElementById('current-user-role').textContent = selectedRole.toUpperCase();
+        
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        
+        // Hide/show tabs based on role
+        const tabs = document.querySelectorAll('.nav-tab');
+        tabs.forEach(tab => {
+            const target = tab.dataset.target;
+            
+            if (state.currentRole === 'admin') {
+                // Admin voit tout
+                tab.style.display = 'flex';
+            } else {
+                // Masquer tous les onglets sauf ceux du rôle
+                const roleTabs = getTabsForRole(state.currentRole);
+                if (roleTabs.includes(target)) {
+                    tab.style.display = 'flex';
+                } else {
+                    tab.style.display = 'none';
+                }
+                
+                // Masquer aussi le dashboard si ce n'est pas admin
+                if (target === 'dashboard') {
+                    tab.style.display = 'flex'; // Chaque rôle voit son dashboard
+                }
+            }
+        });
+        
+        // Activer le premier onglet visible
+        const visibleTabs = document.querySelectorAll('.nav-tab[style="display: flex"], .nav-tab:not([style])');
+        if (visibleTabs.length > 0) {
+            visibleTabs.forEach(t => t.classList.remove('active'));
+            visibleTabs[0].classList.add('active');
+            
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.getElementById(visibleTabs[0].dataset.target).classList.add('active');
+        }
+        
+        // Mettre à jour le dashboard selon le rôle
+        updateRoleBasedDashboard();
+        
+        // Mettre à jour l'affichage des paramètres
+        updateSettingsDisplay();
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        location.reload();
+    });
+}
+
+function getTabsForRole(role) {
+    const roleTabs = {
+        'admin': ['dashboard', 'patients', 'consultation', 'appointments', 'laboratory', 'pharmacy', 'cashier', 'administration', 'settings'],
+        'doctor': ['dashboard', 'patients', 'consultation'],
+        'lab': ['dashboard', 'laboratory'],
+        'pharmacy': ['dashboard', 'pharmacy'],
+        'reception': ['dashboard', 'patients', 'appointments'],
+        'cashier': ['dashboard', 'cashier']
+    };
+    
+    return roleTabs[role] || ['dashboard'];
+}
+
+function setupNavigation() {
+    const tabs = document.querySelectorAll('.nav-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.getElementById(this.dataset.target).classList.add('active');
+            
+            // Mettre à jour les statistiques admin si on accède à cette section
+            if (this.dataset.target === 'administration' && state.currentRole === 'admin') {
+                updateAdminStats();
+            }
+        });
+    });
+}
+
+function updateRoleBasedDashboard() {
+    const dashboardSection = document.getElementById('dashboard');
+    const statsContainer = document.querySelector('.stats-container');
+    
+    // Masquer le contenu générique et afficher le contenu spécifique au rôle
+    dashboardSection.innerHTML = `<h2 class="section-title">Tableau de Bord - ${state.currentRole.toUpperCase()}</h2>`;
+    
+    // Ajouter des statistiques spécifiques au rôle
+    if (state.currentRole === 'admin') {
+        dashboardSection.innerHTML += `
+            <div class="stats-container">
+                <div class="stat-card"><div class="stat-icon" style="background:#1a6bca"><i class="fas fa-user-injured"></i></div><div class="stat-info"><h3 id="stat-patients">0</h3><p>Patients</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#28a745"><i class="fas fa-stethoscope"></i></div><div class="stat-info"><h3 id="stat-consultations">0</h3><p>Consultations</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#dc3545"><i class="fas fa-flask"></i></div><div class="stat-info"><h3 id="stat-analyses">0</h3><p>Analyses</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#ffc107"><i class="fas fa-money-bill-wave"></i></div><div class="stat-info"><h3 id="stat-revenue">0 Gdes</h3><p>Revenus</p></div></div>
+            </div>
+        `;
+        updateDashboard();
+    } else if (state.currentRole === 'doctor') {
+        dashboardSection.innerHTML += `
+            <div class="stats-container">
+                <div class="stat-card"><div class="stat-icon" style="background:#1a6bca"><i class="fas fa-user-injured"></i></div><div class="stat-info"><h3 id="stat-my-patients">0</h3><p>Mes Patients Aujourd'hui</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#28a745"><i class="fas fa-stethoscope"></i></div><div class="stat-info"><h3 id="stat-my-consultations">0</h3><p>Consultations</p></div></div>
+            </div>
+            <div class="card mt-3">
+                <h3>Mes Consultations Récentes</h3>
+                <div id="my-recent-consultations"></div>
+            </div>
+        `;
+        updateDoctorDashboard();
+    } else if (state.currentRole === 'lab') {
+        dashboardSection.innerHTML += `
+            <div class="stats-container">
+                <div class="stat-card"><div class="stat-icon" style="background:#dc3545"><i class="fas fa-flask"></i></div><div class="stat-info"><h3 id="stat-lab-pending">0</h3><p>Analyses en Attente</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#28a745"><i class="fas fa-check-circle"></i></div><div class="stat-info"><h3 id="stat-lab-completed">0</h3><p>Analyses Complétées</p></div></div>
+            </div>
+        `;
+        updateLabDashboard();
+    } else if (state.currentRole === 'pharmacy') {
+        dashboardSection.innerHTML += `
+            <div class="stats-container">
+                <div class="stat-card"><div class="stat-icon" style="background:#17a2b8"><i class="fas fa-pills"></i></div><div class="stat-info"><h3 id="stat-pharm-pending">0</h3><p>Ordonnances en Attente</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#28a745"><i class="fas fa-check-circle"></i></div><div class="stat-info"><h3 id="stat-pharm-delivered">0</h3><p>Médicaments Délivrés</p></div></div>
+            </div>
+        `;
+        updatePharmacyDashboard();
+    } else if (state.currentRole === 'cashier') {
+        dashboardSection.innerHTML += `
+            <div class="stats-container">
+                <div class="stat-card"><div class="stat-icon" style="background:#28a745"><i class="fas fa-money-bill-wave"></i></div><div class="stat-info"><h3 id="stat-cashier-today">0 Gdes</h3><p>Encaissements Aujourd'hui</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#1a6bca"><i class="fas fa-users"></i></div><div class="stat-info"><h3 id="stat-cashier-patients">0</h3><p>Patients Servis</p></div></div>
+            </div>
+        `;
+        updateCashierDashboard();
+    }
+}
+
+function updateDoctorDashboard() {
+    const today = new Date().toLocaleDateString('fr-FR');
+    const myConsultations = state.consultations.filter(c => c.doctor === state.currentUser && c.date === today);
+    const myPatients = [...new Set(myConsultations.map(c => c.patientId))];
+    
+    document.getElementById('stat-my-patients').textContent = myPatients.length;
+    document.getElementById('stat-my-consultations').textContent = myConsultations.length;
+    
+    const recentContainer = document.getElementById('my-recent-consultations');
+    recentContainer.innerHTML = '';
+    
+    myConsultations.slice(0, 5).forEach(consult => {
+        const patient = state.patients.find(p => p.id === consult.patientId);
+        recentContainer.innerHTML += `
+            <div class="service-item">
+                <div>
+                    <strong>${patient ? patient.name : 'Patient inconnu'}</strong><br>
+                    <small>Diagnostic: ${consult.diagnosis || 'Non spécifié'}</small>
+                </div>
+                <div>${consult.date}</div>
+            </div>
+        `;
+    });
+}
+
+function updateLabDashboard() {
+    const pendingAnalyses = state.analyses.filter(a => !a.results && (a.status === 'paid' || a.status === 'pending-payment'));
+    const completedAnalyses = state.analyses.filter(a => a.results);
+    
+    document.getElementById('stat-lab-pending').textContent = pendingAnalyses.length;
+    document.getElementById('stat-lab-completed').textContent = completedAnalyses.length;
+}
+
+function updatePharmacyDashboard() {
+    const pendingPrescriptions = state.prescriptions.filter(p => p.status === 'pending-payment' || p.status === 'paid');
+    const deliveredPrescriptions = state.prescriptions.filter(p => p.status === 'delivered');
+    
+    document.getElementById('stat-pharm-pending').textContent = pendingPrescriptions.length;
+    document.getElementById('stat-pharm-delivered').textContent = deliveredPrescriptions.length;
+}
+
+function updateCashierDashboard() {
+    const today = new Date().toLocaleDateString('fr-FR');
+    const todayTransactions = state.transactions.filter(t => t.date === today);
+    const totalToday = todayTransactions.reduce((sum, t) => sum + t.amount, 0);
+    const patientsServed = [...new Set(todayTransactions.map(t => t.patientId))].length;
+    
+    document.getElementById('stat-cashier-today').textContent = totalToday + ' Gdes';
+    document.getElementById('stat-cashier-patients').textContent = patientsServed;
+}
+
+// --- UTILITIES ---
+function showAlert(msg, type='info') {
+    alert(msg);
+}
+
+function findPatient(inputId) {
+    if (!inputId) return null;
+    const search = inputId.trim().toLowerCase();
+    
+    return state.patients.find(p => 
+        p.id.toLowerCase() === search || 
+        p.name.toLowerCase().includes(search)
+    );
+}
+
+// --- PATIENTS ---
+function setupPatients() {
+    document.getElementById('patient-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = (document.getElementById('patient-emergency').checked ? 'URG' : 'PA') + 
+                   state.counter.toString().padStart(4, '0');
+        state.counter++;
+        
+        const newPatient = {
+            id: id,
+            name: document.getElementById('patient-name').value,
+            dob: document.getElementById('patient-dob').value,
+            phone: document.getElementById('patient-phone').value,
+            emergency: document.getElementById('patient-emergency').checked,
+            pediatric: document.getElementById('patient-pediatric').checked,
+            registrationDate: new Date().toLocaleDateString('fr-FR')
+        };
+        state.patients.push(newPatient);
+        updatePatientTable();
+        showAlert(`Patient enregistré: ${id}`, 'success');
+        
+        // Activer le bouton pour générer la carte
+        document.getElementById('generate-patient-card-btn').classList.remove('hidden');
+        document.getElementById('generate-patient-card-btn').dataset.patientId = id;
+        
+        e.target.reset();
+    });
+    
+    // Bouton pour générer la carte patient
+    document.getElementById('generate-patient-card-btn').addEventListener('click', function() {
+        const patientId = this.dataset.patientId;
+        const patient = state.patients.find(p => p.id === patientId);
+        
+        if (patient) {
+            generatePatientCard(patient);
+        }
+    });
+}
+
+function updatePatientTable() {
+    const tbody = document.getElementById('patients-table-body');
+    tbody.innerHTML = '';
+    state.patients.forEach(p => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${p.id}</td>
+                <td>${p.name}</td>
+                <td>${p.dob}</td>
+                <td>${p.emergency ? 'URGENCE' : 'Normal'}</td>
+                <td>
+                    <button class="btn btn-sm btn-secondary" onclick="generatePatientCardById('${p.id}')">
+                        <i class="fas fa-id-card"></i> Carte
+                    </button>
+                </td>
+            </tr>`;
+    });
+    document.getElementById('stat-patients').textContent = state.patients.length;
+}
+
+function generatePatientCardById(patientId) {
+    const patient = state.patients.find(p => p.id === patientId);
+    if (patient) {
+        generatePatientCard(patient);
+    }
+}
+
+function generatePatientCard(patient) {
+    // Mettre à jour les informations de la carte
+    document.getElementById('card-hospital-name').textContent = state.hospitalInfo.name;
+    document.getElementById('card-hospital-address').textContent = state.hospitalInfo.address;
+    document.getElementById('card-patient-name').textContent = patient.name;
+    document.getElementById('card-patient-id').textContent = patient.id;
+    document.getElementById('card-patient-dob').textContent = patient.dob;
+    document.getElementById('card-patient-phone').textContent = patient.phone || 'Non renseigné';
+    document.getElementById('card-issue-date').textContent = new Date().toLocaleDateString('fr-FR');
+    
+    const typeElement = document.getElementById('card-patient-type');
+    typeElement.textContent = patient.emergency ? 'URGENCE' : (patient.pediatric ? 'PÉDIATRIE' : 'STANDARD');
+    typeElement.className = patient.emergency ? 'emergency-patient-tag' : (patient.pediatric ? 'pediatric-tag' : '');
+    
+    // Afficher la carte et l'imprimer
+    const container = document.getElementById('patient-card-container');
+    container.classList.remove('hidden');
+    
+    // Imprimer la carte
+    setTimeout(() => {
+        window.print();
+        container.classList.add('hidden');
+    }, 500);
+}
+
+// --- SETTINGS ---
+function setupSettings() {
+    // Sauvegarde des informations de l'hôpital
+    document.getElementById('save-hospital-info-btn').addEventListener('click', function() {
+        state.hospitalInfo.name = document.getElementById('hospital-name').value;
+        state.hospitalInfo.address = document.getElementById('hospital-address').value;
+        state.hospitalInfo.phone = document.getElementById('hospital-phone').value;
+        
+        updateHospitalInfoDisplay();
+        showAlert("Informations de l'hôpital mises à jour", 'success');
+    });
+    
+    // Gestion des employés
+    document.getElementById('add-employee-btn').addEventListener('click', function() {
+        const name = document.getElementById('new-employee-name').value;
+        const role = document.getElementById('new-employee-role').value;
+        const empId = document.getElementById('new-employee-id').value;
+        const password = document.getElementById('new-employee-password').value;
+        
+        if (!name || !role || !empId || !password) {
+            showAlert("Veuillez remplir tous les champs", 'warning');
+            return;
+        }
+        
+        state.employees.push({
+            id: empId,
+            name: name,
+            role: role,
+            username: empId.toLowerCase(),
+            password: password
+        });
+        
+        updateEmployeesTable();
+        showAlert("Employé ajouté avec succès", 'success');
+        
+        // Réinitialiser le formulaire
+        document.getElementById('new-employee-name').value = '';
+        document.getElementById('new-employee-role').value = '';
+        document.getElementById('new-employee-id').value = '';
+        document.getElementById('new-employee-password').value = '';
+    });
+    
+    // Types de consultation
+    const btnConsult = document.getElementById('add-consultation-type-btn');
+    if(btnConsult) {
+        btnConsult.addEventListener('click', function(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('new-consultation-type');
+            const priceInput = document.getElementById('new-consultation-price');
+            
+            const name = nameInput.value;
+            const priceVal = priceInput.value.replace(',', '.');
+            const price = parseFloat(priceVal);
+            
+            if(!name || isNaN(price)) {
+                showAlert("Veuillez entrer un nom valide et un prix numérique.", 'warning');
+                return;
+            }
+            
+            state.consultationTypes.push({
+                id: Date.now(),
+                name: name,
+                price: price,
+                active: true
+            });
+            
+            nameInput.value = '';
+            priceInput.value = '';
+            updateSettingsDisplay();
+            updateConsultationTypeSelect();
+            showAlert("Type de consultation ajouté !", 'success');
+        });
+    }
+
+    const btnExt = document.getElementById('add-external-service-settings-btn');
+    if(btnExt) {
+        btnExt.addEventListener('click', function(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('new-external-service');
+            const priceInput = document.getElementById('new-external-service-price');
+            
+            const name = nameInput.value;
+            const price = parseFloat(priceInput.value.replace(',', '.'));
+            
+            if(!name || isNaN(price)) {
+                showAlert("Erreur de saisie.", 'warning');
+                return;
+            }
+            
+            state.externalServices.push({ id: Date.now(), name: name, price: price, active: true });
+            nameInput.value = '';
+            priceInput.value = '';
+            updateSettingsDisplay();
+            showAlert("Service ajouté !", 'success');
+        });
+    }
+
+    const btnLab = document.getElementById('add-lab-analysis-settings-btn');
+    if(btnLab) {
+        btnLab.addEventListener('click', function(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('new-lab-analysis');
+            const priceInput = document.getElementById('new-lab-analysis-price');
+            
+            const name = nameInput.value;
+            const price = parseFloat(priceInput.value.replace(',', '.'));
+            
+            if(!name || isNaN(price)) {
+                showAlert("Erreur de saisie.", 'warning');
+                return;
+            }
+            
+            state.labAnalyses.push({ id: Date.now(), name: name, price: price, active: true });
+            nameInput.value = '';
+            priceInput.value = '';
+            updateSettingsDisplay();
+            showAlert("Analyse ajoutée !", 'success');
+        });
+    }
+    
+    updateEmployeesTable();
+}
+
+function updateSettingsDisplay() {
+    const consList = document.getElementById('consultation-types-list');
+    consList.innerHTML = '';
+    state.consultationTypes.forEach(t => {
+        if(t.active) {
+            consList.innerHTML += `<div class="setting-item"><strong>${t.name}</strong> <span class="service-price">${t.price} Gdes</span></div>`;
+        }
+    });
+
+    const extList = document.getElementById('external-services-list-settings');
+    extList.innerHTML = '';
+    state.externalServices.forEach(s => {
+        if(s.active) {
+            extList.innerHTML += `<div class="setting-item"><strong>${s.name}</strong> <span class="service-price">${s.price} Gdes</span></div>`;
+        }
+    });
+
+    const labList = document.getElementById('lab-analyses-list-settings');
+    labList.innerHTML = '';
+    state.labAnalyses.forEach(a => {
+        if(a.active) {
+            labList.innerHTML += `<div class="setting-item"><strong>${a.name}</strong> <span class="service-price">${a.price} Gdes</span></div>`;
+        }
+    });
+}
+
+function updateEmployeesTable() {
+    const tbody = document.getElementById('employees-table-body');
+    tbody.innerHTML = '';
+    state.employees.forEach(emp => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${emp.name}</td>
+                <td>${emp.role}</td>
+                <td>${emp.id}</td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="deleteEmployee('${emp.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+    });
+}
+
+function deleteEmployee(empId) {
+    if (confirm("Voulez-vous vraiment supprimer cet employé ?")) {
+        state.employees = state.employees.filter(emp => emp.id !== empId);
+        updateEmployeesTable();
+        showAlert("Employé supprimé", 'success');
+    }
+}
+
+function updateHospitalInfoDisplay() {
+    // Mettre à jour l'affichage dans l'en-tête
+    document.getElementById('hospital-name-header').textContent = state.hospitalInfo.name;
+    document.getElementById('hospital-address-header').textContent = state.hospitalInfo.address;
+    
+    // Mettre à jour dans le login
+    document.getElementById('hospital-name-login').textContent = state.hospitalInfo.name;
+    
+    // Mettre à jour dans les paramètres
+    document.getElementById('hospital-name').value = state.hospitalInfo.name;
+    document.getElementById('hospital-address').value = state.hospitalInfo.address;
+    document.getElementById('hospital-phone').value = state.hospitalInfo.phone;
+}
+
+function updateConsultationTypeSelect() {
+    const select = document.getElementById('consultation-type');
+    select.innerHTML = '<option value="">Sélectionner un type</option>';
+    state.consultationTypes.forEach(type => {
+        if(type.active) {
+            select.innerHTML += `<option value="${type.id}" data-price="${type.price}">${type.name} - ${type.price} Gdes</option>`;
+        }
+    });
+}
+
+// --- CONSULTATION ---
+function setupConsultation() {
+    updateConsultationTypeSelect();
+    
+    document.getElementById('search-patient-btn').addEventListener('click', () => {
+        const p = findPatient(document.getElementById('search-patient-id').value);
+        if(p) {
+            // Afficher le formulaire de signes vitaux
+            document.getElementById('vitals-form-container').classList.remove('hidden');
+            document.getElementById('consultation-form-container').classList.remove('hidden');
+            document.getElementById('cons-patient-name').textContent = "Patient: " + p.name + " (" + p.id + ")";
+            document.getElementById('consultation-form').dataset.pid = p.id;
+            
+            // Charger les signes vitaux existants s'ils existent
+            if (state.patientVitals[p.id]) {
+                const vitals = state.patientVitals[p.id];
+                document.getElementById('vital-bp').value = vitals.bp || '';
+                document.getElementById('vital-temp').value = vitals.temp || '';
+                document.getElementById('vital-pulse').value = vitals.pulse || '';
+                document.getElementById('vital-resp').value = vitals.resp || '';
+                document.getElementById('vital-oxygen').value = vitals.oxygen || '';
+                document.getElementById('vital-glucose').value = vitals.glucose || '';
+                document.getElementById('vital-notes').value = vitals.notes || '';
+            }
+            
+            // Afficher les signes vitaux enregistrés
+            updateVitalsDisplay(p.id);
+            
+            const labDiv = document.getElementById('lab-analyses-selection');
+            labDiv.innerHTML = '';
+            state.labAnalyses.forEach(a => {
+                labDiv.innerHTML += `<label><input type="checkbox" value="${a.name}" data-price="${a.price}"> ${a.name} (${a.price} Gdes)</label>`;
+            });
+        } else {
+            showAlert("Patient introuvable");
+        }
+    });
+
+    // Sauvegarde des signes vitaux
+    document.getElementById('save-vitals-btn').addEventListener('click', function() {
+        const pid = document.getElementById('consultation-form').dataset.pid;
+        if (!pid) {
+            showAlert("Veuillez d'abord sélectionner un patient", 'warning');
+            return;
+        }
+        
+        const vitals = {
+            bp: document.getElementById('vital-bp').value,
+            temp: document.getElementById('vital-temp').value,
+            pulse: document.getElementById('vital-pulse').value,
+            resp: document.getElementById('vital-resp').value,
+            oxygen: document.getElementById('vital-oxygen').value,
+            glucose: document.getElementById('vital-glucose').value,
+            notes: document.getElementById('vital-notes').value,
+            date: new Date().toLocaleDateString('fr-FR'),
+            time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+        };
+        
+        state.patientVitals[pid] = vitals;
+        updateVitalsDisplay(pid);
+        showAlert("Signes vitaux enregistrés", 'success');
+    });
+
+    document.getElementById('check-medication-btn').addEventListener('click', () => {
+        const medsText = document.getElementById('consultation-meds').value;
+        if (!medsText.trim()) {
+            showAlert("Veuillez d'abord entrer des médicaments", 'warning');
+            return;
+        }
+        
+        const medLines = medsText.split('\n').filter(line => line.trim());
+        let results = [];
+        let outOfStock = [];
+        
+        medLines.forEach(line => {
+            const medName = line.split('-')[0].trim();
+            const inStock = state.stock.find(s => 
+                s.medication.toLowerCase().includes(medName.toLowerCase()) && s.quantity > 0
+            );
+            
+            if (inStock) {
+                results.push(`${medName}: Disponible (${inStock.quantity} en stock)`);
+            } else {
+                results.push(`${medName}: Non disponible en stock`);
+                outOfStock.push(medName);
+            }
+        });
+        
+        showAlert(results.join('\n'), 'info');
+        
+        // Si des médicaments sont hors stock, les enregistrer
+        if (outOfStock.length > 0) {
+            const pid = document.getElementById('consultation-form').dataset.pid;
+            if (pid) {
+                if (!state.outOfStockMeds) state.outOfStockMeds = {};
+                if (!state.outOfStockMeds[pid]) state.outOfStockMeds[pid] = [];
+                state.outOfStockMeds[pid] = [...new Set([...state.outOfStockMeds[pid], ...outOfStock])];
+            }
+        }
+    });
+
+    document.getElementById('consultation-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pid = e.target.dataset.pid;
+        const consultationTypeId = document.getElementById('consultation-type').value;
+        const consultationType = state.consultationTypes.find(t => t.id == consultationTypeId);
+        const diagnosis = document.getElementById('consultation-diagnosis').value;
+        const meds = document.getElementById('consultation-meds').value;
+        
+        // Récupérer les signes vitaux
+        const vitals = state.patientVitals[pid] || {};
+        
+        const checkboxes = document.querySelectorAll('#lab-analyses-selection input:checked');
+        let analysesArr = [];
+        checkboxes.forEach(cb => analysesArr.push({name: cb.value, price: parseFloat(cb.dataset.price)}));
+
+        state.consultations.push({
+            id: Date.now(),
+            patientId: pid,
+            doctor: state.currentUser,
+            date: new Date().toLocaleDateString('fr-FR'),
+            diagnosis: diagnosis,
+            type: consultationType ? consultationType.name : 'Non spécifié',
+            typePrice: consultationType ? consultationType.price : 0,
+            vitals: vitals,
+            paid: false // Par défaut non payé
+        });
+
+        if(meds) {
+            state.prescriptions.push({
+                patientId: pid,
+                details: meds,
+                status: 'pending-payment',
+                date: new Date().toLocaleDateString('fr-FR')
+            });
+        }
+
+        if(analysesArr.length > 0) {
+            state.analyses.push({
+                patientId: pid,
+                details: analysesArr,
+                status: 'pending-payment',
+                results: null,
+                date: new Date().toLocaleDateString('fr-FR')
+            });
+        }
+
+        showAlert("Consultation enregistrée.", 'success');
+        e.target.reset();
+        document.getElementById('consultation-form-container').classList.add('hidden');
+        document.getElementById('vitals-form-container').classList.add('hidden');
+        updateDashboard();
+    });
+}
+
+function updateVitalsDisplay(patientId) {
+    const vitals = state.patientVitals[patientId];
+    const displayDiv = document.getElementById('vitals-display');
+    
+    if (!vitals) {
+        displayDiv.innerHTML = '<div class="alert alert-info">Aucun signe vital enregistré pour ce patient.</div>';
+        return;
+    }
+    
+    let html = '<div class="card"><h4>Signes Vitaux Enregistrés</h4><div class="d-flex" style="gap:15px; flex-wrap:wrap">';
+    
+    if (vitals.bp) html += `<div><strong>TA:</strong> ${vitals.bp}</div>`;
+    if (vitals.temp) html += `<div><strong>Temp:</strong> ${vitals.temp}°C</div>`;
+    if (vitals.pulse) html += `<div><strong>Pouls:</strong> ${vitals.pulse} bpm</div>`;
+    if (vitals.resp) html += `<div><strong>FR:</strong> ${vitals.resp} rpm</div>`;
+    if (vitals.oxygen) html += `<div><strong>SpO2:</strong> ${vitals.oxygen}%</div>`;
+    if (vitals.glucose) html += `<div><strong>Glycémie:</strong> ${vitals.glucose} mg/dL</div>`;
+    
+    html += '</div>';
+    if (vitals.notes) html += `<div class="mt-2"><strong>Notes:</strong> ${vitals.notes}</div>`;
+    html += `<div class="mt-2"><small>Enregistré le ${vitals.date} à ${vitals.time}</small></div>`;
+    html += '</div>';
+    
+    displayDiv.innerHTML = html;
+}
+
+// --- PHARMACY ---
+function setupPharmacy() {
+    document.getElementById('pharmacy-search-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        const inputVal = document.getElementById('pharmacy-patient-id').value;
+        const patient = findPatient(inputVal);
+        
+        const container = document.getElementById('pharmacy-results-container');
+        container.innerHTML = '';
+        container.classList.remove('hidden');
+
+        if (!patient) {
+            container.innerHTML = '<div class="alert alert-danger">Patient introuvable.</div>';
+            return;
+        }
+
+        const prescriptions = state.prescriptions.filter(p => p.patientId === patient.id);
+
+        if (prescriptions.length === 0) {
+            container.innerHTML = `<div class="alert alert-info">Aucune ordonnance trouvée pour ${patient.name}.</div>`;
+            return;
+        }
+
+        let html = `<div class="card"><h3>Ordonnances pour ${patient.name} (${patient.id})</h3>`;
+        
+        prescriptions.forEach(p => {
+            let statusBadge = '';
+            let actionBtn = '';
+
+            // Pour les patients urgents, permettre la délivrance sans paiement
+            const isEmergency = patient.id.startsWith('URG');
+            
+            if ((p.status === 'pending-payment' && !isEmergency) || (p.status === 'pending-payment' && isEmergency)) {
+                statusBadge = isEmergency ? 
+                    '<span class="text-warning">Urgence - Délivrance autorisée</span>' : 
+                    '<span class="text-warning">En attente de paiement (Caisse)</span>';
+                
+                actionBtn = isEmergency ? 
+                    `<button class="btn btn-success" onclick="deliverMedication('${p.patientId}', '${p.details}')">Délivrer (Urgence)</button>` :
+                    '<button class="btn btn-secondary" disabled>Paiement requis</button>';
+            } else if (p.status === 'paid' || (isEmergency && p.status === 'pending-payment')) {
+                statusBadge = '<span class="text-success">Payé / Validé</span>';
+                actionBtn = `<button class="btn btn-success" onclick="deliverMedication('${p.patientId}', '${p.details}')">Délivrer</button>`;
+            } else if (p.status === 'delivered') {
+                statusBadge = '<span class="text-info">Délivré</span>';
+                actionBtn = '<button class="btn btn-info" disabled>Déjà délivré</button>';
+            }
+
+            html += `
+                <div style="border-bottom:1px solid #ddd; padding:10px 0;">
+                    <p><strong>Médicaments:</strong> ${p.details}</p>
+                    <p><strong>Statut:</strong> ${statusBadge}</p>
+                    ${actionBtn}
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    });
+
+    // Gestion de l'ajout de médicaments (admin seulement)
+    document.getElementById('toggle-add-medication-btn').addEventListener('click', () => {
+        const form = document.getElementById('add-medication-form');
+        if (state.currentRole === 'admin') {
+            form.classList.toggle('hidden');
+        } else {
+            showAlert("Seul l'administrateur peut ajouter des médicaments", 'warning');
+        }
+    });
+
+    document.getElementById('add-medication-btn').addEventListener('click', () => {
+        if (state.currentRole !== 'admin') {
+            showAlert("Seul l'administrateur peut ajouter des médicaments", 'warning');
+            return;
+        }
+        
+        const name = document.getElementById('new-medication-name').value;
+        const quantity = parseInt(document.getElementById('new-medication-quantity').value);
+        const price = parseFloat(document.getElementById('new-medication-price').value);
+        
+        if (!name || isNaN(quantity) || isNaN(price)) {
+            showAlert("Veuillez remplir tous les champs correctement", 'warning');
+            return;
+        }
+        
+        const newId = 'MED' + (state.stock.length + 1).toString().padStart(3, '0');
+        state.stock.push({
+            id: newId,
+            medication: name,
+            quantity: quantity,
+            price: price
+        });
+        
+        updateStockTable();
+        document.getElementById('new-medication-name').value = '';
+        document.getElementById('new-medication-quantity').value = '';
+        document.getElementById('new-medication-price').value = '';
+        showAlert("Médicament ajouté au stock", 'success');
+    });
+
+    updateStockTable();
+}
+
+function deliverMedication(patientId, details) {
+    const patient = state.patients.find(p => p.id === patientId);
+    const isEmergency = patient && patient.id.startsWith('URG');
+    
+    // Vérifier le paiement (sauf pour les urgences)
+    const prescription = state.prescriptions.find(p => p.patientId === patientId && p.details === details);
+    
+    if (!prescription) {
+        showAlert("Ordonnance non trouvée", 'danger');
+        return;
+    }
+    
+    if (!isEmergency && prescription.status !== 'paid') {
+        showAlert("Le patient doit d'abord payer à la caisse", 'warning');
+        return;
+    }
+    
+    // Délivrer les médicaments
+    prescription.status = 'delivered';
+    
+    // Décrémenter le stock pour les médicaments délivrés
+    const medLines = details.split('\n').filter(line => line.trim());
+    let outOfStockMeds = [];
+    
+    medLines.forEach(line => {
+        const medName = line.split('-')[0].trim();
+        const stockItem = state.stock.find(s => 
+            s.medication.toLowerCase().includes(medName.toLowerCase())
+        );
+        
+        if (stockItem && stockItem.quantity > 0) {
+            stockItem.quantity -= 1;
+        } else {
+            outOfStockMeds.push(medName);
+        }
+    });
+    
+    updateStockTable();
+    
+    if (outOfStockMeds.length > 0) {
+        showAlert(`Médicaments délivrés, mais certains sont hors stock: ${outOfStockMeds.join(', ')}`, 'warning');
+        
+        // Enregistrer les médicaments hors stock
+        if (!state.outOfStockMeds) state.outOfStockMeds = {};
+        if (!state.outOfStockMeds[patientId]) state.outOfStockMeds[patientId] = [];
+        state.outOfStockMeds[patientId] = [...new Set([...state.outOfStockMeds[patientId], ...outOfStockMeds])];
+    } else {
+        showAlert("Médicaments délivrés avec succès", 'success');
+    }
+    
+    // Recharger l'affichage
+    document.getElementById('pharmacy-search-btn').click();
+}
+
+function updateStockTable() {
+    const tbody = document.getElementById('stock-table-body');
+    tbody.innerHTML = '';
+    state.stock.forEach(s => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${s.medication}</td>
+                <td>${s.quantity}</td>
+                <td>${s.price} Gdes</td>
+                <td>
+                    ${state.currentRole === 'admin' ? 
+                        `<button class="btn btn-warning btn-sm" onclick="restockMedication('${s.id}')">Réapprovisionner</button>` : 
+                        ''}
+                </td>
+            </tr>`;
+    });
+}
+
+function restockMedication(medId) {
+    if (state.currentRole !== 'admin') {
+        showAlert("Seul l'administrateur peut modifier le stock", 'warning');
+        return;
+    }
+    
+    const quantity = prompt("Quantité à ajouter:", "10");
+    if (quantity && !isNaN(quantity)) {
+        const med = state.stock.find(m => m.id === medId);
+        if (med) {
+            med.quantity += parseInt(quantity);
+            updateStockTable();
+            showAlert(`Stock de ${med.medication} mis à jour: ${med.quantity} unités`, 'success');
+        }
+    }
+}
+
+// --- LABORATORY ---
+function setupLaboratory() {
+    document.getElementById('lab-search-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        const inputVal = document.getElementById('lab-patient-id').value;
+        const patient = findPatient(inputVal);
+        
+        const container = document.getElementById('lab-results-container');
+        container.innerHTML = '';
+        container.classList.remove('hidden');
+
+        if (!patient) {
+            container.innerHTML = '<div class="alert alert-danger">Patient introuvable.</div>';
+            return;
+        }
+
+        const analyses = state.analyses.filter(a => a.patientId === patient.id);
+
+        if (analyses.length === 0) {
+            container.innerHTML = `<div class="alert alert-info">Aucune analyse demandée pour ${patient.name}.</div>`;
+            return;
+        }
+
+        let html = `<div class="card"><h3>Analyses pour ${patient.name} (${patient.id})</h3>`;
+        analyses.forEach(a => {
+            let list = a.details.map(d => d.name).join(', ');
+            let totalPrice = a.details.reduce((sum, d) => sum + d.price, 0);
+            
+            // Pour les patients urgents, permettre la saisie sans paiement
+            const isEmergency = patient.id.startsWith('URG');
+            let status = (a.status === 'paid' || isEmergency) ? 'Payé/Validé' : 'En attente paiement';
+            let color = (status === 'Payé/Validé') ? 'green' : 'orange';
+            
+            let action = '';
+            if((status === 'Payé/Validé' && !a.results) || (isEmergency && !a.results)) {
+                action = `<button class="btn btn-success btn-sm mt-2" onclick="enterLabResults('${a.patientId}', ${a.details.length}, '${a.date}')">Saisir Résultats</button>`;
+            } else if (!a.results) {
+                action = `<span class="text-muted">Paiement requis à la caisse</span>`;
+            } else {
+                action = `<div><strong>Résultats:</strong><pre>${a.results}</pre></div>`;
+            }
+
+            html += `
+                <div style="border-bottom:1px solid #ddd; padding:10px 0;">
+                    <p><strong>Type:</strong> ${list}</p>
+                    <p><strong>Prix total:</strong> ${totalPrice} Gdes</p>
+                    <p style="color:${color}"><strong>Statut:</strong> ${status}</p>
+                    ${action}
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    });
+}
+
+function enterLabResults(patientId, analysisCount, analysisDate) {
+    const patient = state.patients.find(p => p.id === patientId);
+    const isEmergency = patient && patient.id.startsWith('URG');
+    
+    // Vérifier le paiement (sauf pour les urgences)
+    const analysis = state.analyses.find(a => a.patientId === patientId && a.date === analysisDate && !a.results);
+    
+    if (!analysis) {
+        showAlert("Analyse non trouvée", 'danger');
+        return;
+    }
+    
+    if (!isEmergency && analysis.status !== 'paid') {
+        showAlert("Le patient doit d'abord payer à la caisse", 'warning');
+        return;
+    }
+    
+    let results = '';
+    for(let i = 1; i <= analysisCount; i++) {
+        const analysisName = analysis.details[i-1] ? analysis.details[i-1].name : `Analyse ${i}`;
+        const result = prompt(`Résultat pour ${analysisName}:`);
+        if (result) {
+            results += `${analysisName}: ${result}\n`;
+        }
+    }
+    
+    if (results) {
+        analysis.results = results;
+        showAlert("Résultats enregistrés", 'success');
+        document.getElementById('lab-search-btn').click();
+    }
+}
+
+// --- CASHIER ---
+function setupCashier() {
+    document.getElementById('cashier-search-btn').addEventListener('click', () => {
+        const inputVal = document.getElementById('cashier-patient-id').value;
+        const patient = findPatient(inputVal);
+        
+        const container = document.getElementById('cashier-results-container');
+        container.innerHTML = '';
+        container.classList.remove('hidden');
+
+        if (!patient) {
+            container.innerHTML = '<div class="alert alert-danger">Patient introuvable.</div>';
+            return;
+        }
+
+        let totalAmount = 0;
+        let servicesHtml = '';
+        
+        // Consultations en attente
+        const pendingConsultations = state.consultations.filter(c => 
+            c.patientId === patient.id && !c.paid
+        );
+        
+        pendingConsultations.forEach(consult => {
+            const consultType = state.consultationTypes.find(t => t.name === consult.type);
+            const price = consultType ? consultType.price : 500;
+            totalAmount += price;
+            
+            servicesHtml += `
+                <div class="service-item" data-type="consultation" data-id="${consult.id}" data-price="${price}">
+                    <div>
+                        <input type="checkbox" class="service-checkbox" checked>
+                        <strong>Consultation ${consult.type}</strong><br>
+                        <small>${consult.date} - Dr. ${consult.doctor}</small>
+                    </div>
+                    <div>${price} Gdes</div>
+                </div>
+            `;
+        });
+        
+        // Analyses en attente
+        const pendingAnalyses = state.analyses.filter(a => 
+            a.patientId === patient.id && a.status === 'pending-payment'
+        );
+        
+        pendingAnalyses.forEach(analysis => {
+            const analysisPrice = analysis.details.reduce((sum, d) => sum + d.price, 0);
+            totalAmount += analysisPrice;
+            
+            servicesHtml += `
+                <div class="service-item" data-type="analysis" data-id="${analysis.patientId}" data-price="${analysisPrice}">
+                    <div>
+                        <input type="checkbox" class="service-checkbox" checked>
+                        <strong>Analyses de laboratoire</strong><br>
+                        <small>${analysis.details.map(d => d.name).join(', ')}</small>
+                    </div>
+                    <div>${analysisPrice} Gdes</div>
+                </div>
+            `;
+        });
+        
+        // Médicaments en attente
+        const pendingPrescriptions = state.prescriptions.filter(p => 
+            p.patientId === patient.id && p.status === 'pending-payment'
+        );
+        
+        pendingPrescriptions.forEach(prescription => {
+            // Estimation du prix des médicaments
+            const medPrice = 100; // Prix estimé, à ajuster selon le stock réel
+            totalAmount += medPrice;
+            
+            servicesHtml += `
+                <div class="service-item" data-type="prescription" data-id="${prescription.patientId}" data-price="${medPrice}">
+                    <div>
+                        <input type="checkbox" class="service-checkbox" checked>
+                        <strong>Médicaments</strong><br>
+                        <small>${prescription.details}</small>
+                    </div>
+                    <div>${medPrice} Gdes</div>
+                </div>
+            `;
+        });
+        
+        // Afficher les médicaments hors stock pour ce patient
+        if (state.outOfStockMeds && state.outOfStockMeds[patient.id]) {
+            const outOfStockContainer = document.getElementById('out-of-stock-container');
+            outOfStockContainer.classList.remove('hidden');
+            
+            const outOfStockList = document.getElementById('out-of-stock-list');
+            outOfStockList.innerHTML = '';
+            
+            state.outOfStockMeds[patient.id].forEach(med => {
+                outOfStockList.innerHTML += `<div class="medication-out-stock">${med} - Hors stock</div>`;
+            });
+        }
+        
+        if (servicesHtml === '' && (!state.outOfStockMeds || !state.outOfStockMeds[patient.id])) {
+            container.innerHTML = `<div class="alert alert-success">Aucun service en attente de paiement pour ${patient.name}.</div>`;
+            return;
+        }
+        
+        container.innerHTML = `
+            <div class="card">
+                <h3>Services en attente pour ${patient.name} (${patient.id})</h3>
+                <div id="services-list">
+                    ${servicesHtml}
+                </div>
+                
+                <div class="cashier-total">
+                    <h3>Total à payer: <span id="total-amount">${totalAmount}</span> Gdes</h3>
+                </div>
+                
+                <h4>Moyen de paiement</h4>
+                <div class="payment-method-selector">
+                    <div class="payment-method active" data-method="cash">
+                        <i class="fas fa-money-bill-wave fa-2x"></i>
+                        <p>Cash</p>
+                    </div>
+                    <div class="payment-method" data-method="moncash">
+                        <i class="fas fa-mobile-alt fa-2x"></i>
+                        <p>Mon Cash</p>
+                    </div>
+                    <div class="payment-method" data-method="natcash">
+                        <i class="fas fa-wallet fa-2x"></i>
+                        <p>NatCash</p>
+                    </div>
+                    <div class="payment-method" data-method="card">
+                        <i class="fas fa-credit-card fa-2x"></i>
+                        <p>Carte Bancaire</p>
+                    </div>
+                    <div class="payment-method" data-method="transfer">
+                        <i class="fas fa-university fa-2x"></i>
+                        <p>Virement</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-between mt-3">
+                    <button id="generate-global-receipt-btn" class="btn btn-info">
+                        <i class="fas fa-receipt"></i> Générer Reçu Global
+                    </button>
+                    <button id="process-payment-btn" class="btn btn-success btn-lg">
+                        <i class="fas fa-check-circle"></i> Procéder au Paiement
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        setupPaymentMethods();
+        setupServiceSelection();
+        setupProcessPayment(patient, totalAmount);
+        setupGlobalReceipt(patient);
+    });
+    
+    // Bouton pour imprimer les médicaments hors stock
+    document.getElementById('print-out-of-stock-btn').addEventListener('click', function() {
+        printOutOfStockMeds();
+    });
+}
+
+function setupPaymentMethods() {
+    const methods = document.querySelectorAll('.payment-method');
+    methods.forEach(method => {
+        method.addEventListener('click', function() {
+            methods.forEach(m => m.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+}
+
+function setupServiceSelection() {
+    const checkboxes = document.querySelectorAll('.service-checkbox');
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            const serviceItem = this.closest('.service-item');
+            serviceItem.classList.toggle('selected', this.checked);
+            updateTotalAmount();
+        });
+    });
+}
+
+function updateTotalAmount() {
+    let total = 0;
+    document.querySelectorAll('.service-checkbox:checked').forEach(cb => {
+        const serviceItem = cb.closest('.service-item');
+        const price = parseFloat(serviceItem.dataset.price);
+        total += price;
+    });
+    document.getElementById('total-amount').textContent = total;
+}
+
+function setupProcessPayment(patient, initialTotal) {
+    document.getElementById('process-payment-btn').addEventListener('click', () => {
+        const selectedMethod = document.querySelector('.payment-method.active').dataset.method;
+        const total = parseFloat(document.getElementById('total-amount').textContent);
+        
+        if (total === 0) {
+            showAlert("Veuillez sélectionner au moins un service", 'warning');
+            return;
+        }
+        
+        // Marquer les services comme payés
+        document.querySelectorAll('.service-checkbox:checked').forEach(cb => {
+            const serviceItem = cb.closest('.service-item');
+            const type = serviceItem.dataset.type;
+            const id = serviceItem.dataset.id;
+            
+            if (type === 'consultation') {
+                const consult = state.consultations.find(c => c.id == id);
+                if (consult) consult.paid = true;
+            } else if (type === 'analysis') {
+                const analysis = state.analyses.find(a => a.patientId === id && a.status === 'pending-payment');
+                if (analysis) analysis.status = 'paid';
+            } else if (type === 'prescription') {
+                const prescription = state.prescriptions.find(p => p.patientId === id && p.status === 'pending-payment');
+                if (prescription) prescription.status = 'paid';
+            }
+        });
+        
+        // Enregistrer la transaction
+        const transaction = {
+            id: 'TR' + Date.now(),
+            patientId: patient.id,
+            patientName: patient.name,
+            amount: total,
+            method: selectedMethod,
+            date: new Date().toLocaleDateString('fr-FR'),
+            time: new Date().toLocaleTimeString('fr-FR'),
+            agent: state.currentUser
+        };
+        
+        state.transactions.push(transaction);
+        
+        showAlert(`Paiement de ${total} Gdes effectué avec succès via ${selectedMethod}`, 'success');
+        
+        // Générer un reçu
+        generateReceipt(patient, selectedMethod, total);
+        
+        // Mettre à jour les statistiques
+        updateDashboard();
+        updateAdminStats();
+        
+        // Réinitialiser
+        document.getElementById('cashier-patient-id').value = '';
+        document.getElementById('cashier-results-container').classList.add('hidden');
+        document.getElementById('out-of-stock-container').classList.add('hidden');
+    });
+}
+
+function setupGlobalReceipt(patient) {
+    document.getElementById('generate-global-receipt-btn').addEventListener('click', () => {
+        generateGlobalReceipt(patient);
+    });
+}
+
+function generateReceipt(patient, method, amount) {
+    const receiptContainer = document.getElementById('global-receipt-container');
+    
+    // Mettre à jour les informations du reçu
+    document.getElementById('receipt-hospital-name').textContent = state.hospitalInfo.name;
+    document.getElementById('receipt-hospital-address').textContent = state.hospitalInfo.address;
+    document.getElementById('receipt-hospital-phone').textContent = state.hospitalInfo.phone;
+    document.getElementById('receipt-patient-name').textContent = patient.name;
+    document.getElementById('receipt-patient-id').textContent = patient.id;
+    document.getElementById('receipt-date').textContent = new Date().toLocaleDateString('fr-FR');
+    document.getElementById('receipt-time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('receipt-total-amount').textContent = amount;
+    document.getElementById('receipt-payment-method').textContent = method;
+    document.getElementById('receipt-number').textContent = 'TR' + Date.now();
+    
+    // Services payés
+    const servicesList = document.getElementById('receipt-services-list');
+    servicesList.innerHTML = '';
+    
+    // Récupérer les services cochés
+    document.querySelectorAll('.service-checkbox:checked').forEach(cb => {
+        const serviceItem = cb.closest('.service-item');
+        const serviceText = serviceItem.querySelector('strong').textContent;
+        const price = serviceItem.dataset.price;
+        
+        servicesList.innerHTML += `
+            <div class="receipt-item">
+                <span>${serviceText}</span>
+                <span>${price} Gdes</span>
+            </div>
+        `;
+    });
+    
+    // Cacher la section des services non payés
+    document.getElementById('receipt-unpaid-section').classList.add('hidden');
+    
+    // Afficher et imprimer le reçu
+    receiptContainer.classList.remove('hidden');
+    setTimeout(() => {
+        window.print();
+        receiptContainer.classList.add('hidden');
+    }, 500);
+}
+
+function generateGlobalReceipt(patient) {
+    const receiptContainer = document.getElementById('global-receipt-container');
+    
+    // Mettre à jour les informations du reçu
+    document.getElementById('receipt-hospital-name').textContent = state.hospitalInfo.name;
+    document.getElementById('receipt-hospital-address').textContent = state.hospitalInfo.address;
+    document.getElementById('receipt-hospital-phone').textContent = state.hospitalInfo.phone;
+    document.getElementById('receipt-patient-name').textContent = patient.name;
+    document.getElementById('receipt-patient-id').textContent = patient.id;
+    document.getElementById('receipt-date').textContent = new Date().toLocaleDateString('fr-FR');
+    document.getElementById('receipt-time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('receipt-number').textContent = 'GR' + Date.now();
+    
+    // Tous les services (payés et non payés)
+    const servicesList = document.getElementById('receipt-services-list');
+    const unpaidList = document.getElementById('receipt-unpaid-list');
+    servicesList.innerHTML = '';
+    unpaidList.innerHTML = '';
+    
+    let totalPaid = 0;
+    let totalUnpaid = 0;
+    
+    // Consultations
+    const consultations = state.consultations.filter(c => c.patientId === patient.id);
+    consultations.forEach(consult => {
+        const price = consult.typePrice || 500;
+        if (consult.paid) {
+            totalPaid += price;
+            servicesList.innerHTML += `
+                <div class="receipt-item">
+                    <span>Consultation ${consult.type} (Payé)</span>
+                    <span>${price} Gdes</span>
+                </div>
+            `;
+        } else {
+            totalUnpaid += price;
+            unpaidList.innerHTML += `
+                <div class="receipt-item">
+                    <span>Consultation ${consult.type} (Non payé)</span>
+                    <span>${price} Gdes</span>
+                </div>
+            `;
+        }
+    });
+    
+    // Analyses
+    const analyses = state.analyses.filter(a => a.patientId === patient.id);
+    analyses.forEach(analysis => {
+        const price = analysis.details.reduce((sum, d) => sum + d.price, 0);
+        if (analysis.status === 'paid') {
+            totalPaid += price;
+            servicesList.innerHTML += `
+                <div class="receipt-item">
+                    <span>Analyses: ${analysis.details.map(d => d.name).join(', ')} (Payé)</span>
+                    <span>${price} Gdes</span>
+                </div>
+            `;
+        } else {
+            totalUnpaid += price;
+            unpaidList.innerHTML += `
+                <div class="receipt-item">
+                    <span>Analyses: ${analysis.details.map(d => d.name).join(', ')} (Non payé)</span>
+                    <span>${price} Gdes</span>
+                </div>
+            `;
+        }
+    });
+    
+    // Médicaments
+    const prescriptions = state.prescriptions.filter(p => p.patientId === patient.id);
+    prescriptions.forEach(prescription => {
+        const price = 100; // Estimation
+        if (prescription.status === 'paid' || prescription.status === 'delivered') {
+            totalPaid += price;
+            servicesList.innerHTML += `
+                <div class="receipt-item">
+                    <span>Médicaments (Payé)</span>
+                    <span>${price} Gdes</span>
+                </div>
+            `;
+        } else {
+            totalUnpaid += price;
+            unpaidList.innerHTML += `
+                <div class="receipt-item">
+                    <span>Médicaments (Non payé)</span>
+                    <span>${price} Gdes</span>
+                </div>
+            `;
+        }
+    });
+    
+    // Mettre à jour les totaux
+    document.getElementById('receipt-total-amount').textContent = totalPaid;
+    
+    // Afficher la section des services non payés si nécessaire
+    if (totalUnpaid > 0) {
+        document.getElementById('receipt-unpaid-section').classList.remove('hidden');
+        unpaidList.innerHTML += `
+            <div class="receipt-item receipt-total">
+                <span>Total non payé:</span>
+                <span>${totalUnpaid} Gdes</span>
+            </div>
+        `;
+    } else {
+        document.getElementById('receipt-unpaid-section').classList.add('hidden');
+    }
+    
+    // Cacher le moyen de paiement pour le reçu global
+    document.getElementById('receipt-payment-method').textContent = 'Multiple';
+    
+    // Afficher et imprimer le reçu
+    receiptContainer.classList.remove('hidden');
+    setTimeout(() => {
+        window.print();
+        receiptContainer.classList.add('hidden');
+    }, 500);
+}
+
+function printOutOfStockMeds() {
+    const patientId = document.getElementById('cashier-patient-id').value;
+    const patient = findPatient(patientId);
+    
+    if (!patient || !state.outOfStockMeds || !state.outOfStockMeds[patient.id]) {
+        showAlert("Aucun médicament hors stock pour ce patient", 'warning');
+        return;
+    }
+    
+    const meds = state.outOfStockMeds[patient.id];
+    let printContent = `
+        <div class="printable">
+            <h3>Médicaments Hors Stock - ${state.hospitalInfo.name}</h3>
+            <p><strong>Patient:</strong> ${patient.name} (${patient.id})</p>
+            <p><strong>Date:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+            <hr>
+            <h4>Médicaments à commander:</h4>
+            <ul>
+    `;
+    
+    meds.forEach(med => {
+        printContent += `<li>${med}</li>`;
+    });
+    
+    printContent += `
+            </ul>
+            <hr>
+            <p><small>Document généré le ${new Date().toLocaleString('fr-FR')}</small></p>
+        </div>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Médicaments Hors Stock</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                h3 { color: #dc3545; }
+                ul { padding-left: 20px; }
+            </style>
+        </head>
+        <body>
+            ${printContent}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// --- ADMINISTRATION ---
+function updateAdminStats() {
+    if (state.currentRole !== 'admin') return;
+    
+    // Calculer les revenus totaux
+    const totalRevenue = state.transactions.reduce((sum, t) => sum + t.amount, 0);
+    document.getElementById('total-revenue').textContent = totalRevenue + ' Gdes';
+    
+    // Nombre de consultations
+    const consultationsCount = state.consultations.length;
+    const consultationsAmount = state.consultations.reduce((sum, c) => sum + (c.typePrice || 0), 0);
+    document.getElementById('admin-consultations').textContent = consultationsCount;
+    document.getElementById('consultations-amount').textContent = consultationsAmount + ' Gdes';
+    
+    // Nombre d'analyses
+    const analysesCount = state.analyses.length;
+    const analysesAmount = state.analyses.reduce((sum, a) => 
+        sum + a.details.reduce((s, d) => s + d.price, 0), 0);
+    document.getElementById('admin-analyses').textContent = analysesCount;
+    document.getElementById('analyses-amount').textContent = analysesAmount + ' Gdes';
+    
+    // Statistiques par service
+    const servicesBody = document.getElementById('admin-services-table-body');
+    servicesBody.innerHTML = '';
+    
+    const serviceStats = {};
+    
+    // Consultations par type
+    state.consultations.forEach(c => {
+        const type = c.type || 'Générale';
+        if (!serviceStats[type]) serviceStats[type] = { count: 0, amount: 0 };
+        serviceStats[type].count++;
+        serviceStats[type].amount += c.typePrice || 500;
+    });
+    
+    // Analyses
+    if (state.analyses.length > 0) {
+        serviceStats['Analyses'] = { 
+            count: state.analyses.length, 
+            amount: analysesAmount 
+        };
+    }
+    
+    // Médicaments
+    const medicationsCount = state.prescriptions.filter(p => p.status === 'delivered').length;
+    const medicationsAmount = medicationsCount * 100; // Estimation
+    if (medicationsCount > 0) {
+        serviceStats['Médicaments'] = { 
+            count: medicationsCount, 
+            amount: medicationsAmount 
+        };
+    }
+    
+    // Urgences
+    const emergencyCount = state.patients.filter(p => p.emergency).length;
+    if (emergencyCount > 0) {
+        serviceStats['Urgences'] = { 
+            count: emergencyCount, 
+            amount: emergencyCount * 200 // Estimation
+        };
+    }
+    
+    // Afficher les statistiques
+    Object.entries(serviceStats).forEach(([service, stats]) => {
+        const avg = stats.count > 0 ? (stats.amount / stats.count).toFixed(2) : 0;
+        servicesBody.innerHTML += `
+            <tr>
+                <td>${service}</td>
+                <td>${stats.count}</td>
+                <td>${stats.amount} Gdes</td>
+                <td>${avg} Gdes</td>
+            </tr>
+        `;
+    });
+    
+    document.getElementById('admin-medications').textContent = medicationsCount;
+    document.getElementById('medications-amount').textContent = medicationsAmount + ' Gdes';
+    
+    // Transactions récentes
+    const transactionsBody = document.getElementById('transactions-table-body');
+    transactionsBody.innerHTML = '';
+    
+    state.transactions.slice(-10).reverse().forEach(t => {
+        transactionsBody.innerHTML += `
+            <tr>
+                <td>${t.date} ${t.time}</td>
+                <td>${t.patientName} (${t.patientId})</td>
+                <td>${t.method}</td>
+                <td>${t.amount} Gdes</td>
+                <td>${t.agent}</td>
+            </tr>
+        `;
+    });
+}
+
+// --- DASHBOARD ---
+function updateDashboard() {
+    if (state.currentRole === 'admin') {
+        document.getElementById('stat-patients').textContent = state.patients.length;
+        document.getElementById('stat-consultations').textContent = state.consultations.length;
+        document.getElementById('stat-analyses').textContent = state.analyses.length;
+        
+        const totalRevenue = state.transactions.reduce((sum, t) => sum + t.amount, 0);
+        document.getElementById('stat-revenue').textContent = totalRevenue + ' Gdes';
+    } else if (state.currentRole === 'doctor') {
+        updateDoctorDashboard();
+    } else if (state.currentRole === 'lab') {
+        updateLabDashboard();
+    } else if (state.currentRole === 'pharmacy') {
+        updatePharmacyDashboard();
+    } else if (state.currentRole === 'cashier') {
+        updateCashierDashboard();
+    }
+}
+
+// --- DEMO DATA ---
+function loadDemoData() {
+    state.patients.push(
+        {id: 'PA0001', name: 'Jean Dupont', dob: '1980-01-01', phone: '12345678', emergency: false, pediatric: false},
+        {id: 'URG0002', name: 'Marie Curie', dob: '1990-05-05', phone: '87654321', emergency: true, pediatric: false}
+    );
+    
+    state.consultations.push({
+        id: Date.now(),
+        patientId: 'PA0001',
+        doctor: 'Dr. Smith',
+        date: new Date().toLocaleDateString('fr-FR'),
+        diagnosis: 'Fièvre et maux de tête',
+        type: 'Générale',
+        typePrice: 500,
+        paid: true
+    });
+    
+    state.prescriptions.push({
+        patientId: 'PA0001',
+        details: 'Doliprane 1000mg',
+        status: 'delivered',
+        date: new Date().toLocaleDateString('fr-FR')
+    });
+    
+    state.analyses.push({
+        patientId: 'PA0001',
+        details: [{name: 'Hémogramme', price: 300}],
+        status: 'paid',
+        results: 'Normal',
+        date: new Date().toLocaleDateString('fr-FR')
+    });
+    
+    state.transactions.push({
+        id: 'TR001',
+        patientId: 'PA0001',
+        patientName: 'Jean Dupont',
+        amount: 800,
+        method: 'cash',
+        date: new Date().toLocaleDateString('fr-FR'),
+        time: '10:30',
+        agent: 'admin'
+    });
+    
+    // Ajouter des signes vitaux de démo
+    state.patientVitals['PA0001'] = {
+        bp: '120/80',
+        temp: 37.2,
+        pulse: 72,
+        resp: 16,
+        oxygen: 98,
+        glucose: 95,
+        notes: 'Patient stable',
+        date: new Date().toLocaleDateString('fr-FR'),
+        time: '10:15'
+    };
+    
+    updatePatientTable();
+    updateStockTable();
+    updateEmployeesTable();
+}
+</script>
 </body>
 </html>
