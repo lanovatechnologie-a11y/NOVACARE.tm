@@ -132,6 +132,40 @@
         .medication-out-stock { background: #fff3cd; padding: 10px; border-radius: 5px; margin: 10px 0; }
         .receipt-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ddd; }
         .receipt-total { font-weight: bold; font-size: 1.2rem; margin-top: 10px; }
+        
+        /* Nouveaux styles pour les modifications demandées */
+        .appointment-form { background: #f8fbff; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .appointment-list { max-height: 400px; overflow-y: auto; }
+        .appointment-item { border: 1px solid #eef5ff; border-radius: 8px; padding: 15px; margin-bottom: 10px; background: white; }
+        .appointment-status { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .status-pending { background-color: #ffc107; color: #212529; }
+        .status-confirmed { background-color: #28a745; color: white; }
+        .status-cancelled { background-color: #dc3545; color: white; }
+        .status-completed { background-color: #17a2b8; color: white; }
+        
+        /* Messagerie */
+        .messages-container { display: flex; gap: 20px; }
+        .message-list { flex: 1; max-height: 500px; overflow-y: auto; border: 1px solid #eef5ff; border-radius: 8px; padding: 15px; }
+        .message-details { flex: 2; border: 1px solid #eef5ff; border-radius: 8px; padding: 15px; }
+        .message-item { padding: 10px; border-bottom: 1px solid #eef5ff; cursor: pointer; }
+        .message-item:hover { background-color: #f8fbff; }
+        .message-item.unread { background-color: #e7f3ff; font-weight: bold; }
+        .message-sender { color: #1a6bca; font-weight: 600; }
+        .message-time { color: #777; font-size: 0.9rem; }
+        .message-content { margin-top: 10px; padding: 10px; background-color: #f8fbff; border-radius: 5px; }
+        .new-message-form { margin-top: 20px; }
+        
+        /* Résultats images */
+        .image-preview { max-width: 300px; max-height: 300px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; }
+        .upload-btn-wrapper input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        .result-type-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; }
+        .result-type-text { background-color: #17a2b8; color: white; }
+        .result-type-image { background-color: #28a745; color: white; }
+        
+        /* Service selection */
+        .service-category { margin-bottom: 20px; }
+        .service-category h4 { color: #1a6bca; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eef5ff; }
     </style>
 </head>
 <body>
@@ -191,6 +225,7 @@
                 <div class="nav-tab" data-target="cashier"><i class="fas fa-cash-register"></i> Caisse</div>
                 <div class="nav-tab" data-target="administration"><i class="fas fa-chart-bar"></i> Admin</div>
                 <div class="nav-tab" data-target="settings"><i class="fas fa-cog"></i> Paramètres</div>
+                <div class="nav-tab" data-target="messages" id="messages-tab"><i class="fas fa-envelope"></i> Messages</div>
             </nav>
             
             <section id="dashboard" class="content active">
@@ -321,6 +356,57 @@
                 </div>
             </section>
 
+            <section id="appointments" class="content">
+                <h2 class="section-title">Gestion des Rendez-vous</h2>
+                
+                <div class="card appointment-form">
+                    <h3>Nouveau Rendez-vous</h3>
+                    <form id="appointment-form">
+                        <div class="d-flex" style="gap:20px">
+                            <div style="flex:1">
+                                <label class="form-label">Patient</label>
+                                <input type="text" id="appointment-patient-search" class="form-control" placeholder="ID ou Nom du patient">
+                                <div id="patient-suggestions" class="hidden" style="border:1px solid #ddd; max-height:200px; overflow-y:auto; position:absolute; background:white; width:100%; z-index:1000;"></div>
+                            </div>
+                            <div style="flex:1">
+                                <label class="form-label">Docteur</label>
+                                <select id="appointment-doctor" class="form-control">
+                                    <option value="">Sélectionner un docteur</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex mt-2" style="gap:20px">
+                            <div style="flex:1">
+                                <label class="form-label">Date</label>
+                                <input type="date" id="appointment-date" class="form-control" required>
+                            </div>
+                            <div style="flex:1">
+                                <label class="form-label">Heure</label>
+                                <input type="time" id="appointment-time" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <label class="form-label">Type de consultation</label>
+                            <select id="appointment-type" class="form-control">
+                                <option value="">Sélectionner un type</option>
+                            </select>
+                        </div>
+                        <div class="mt-2">
+                            <label class="form-label">Notes</label>
+                            <textarea id="appointment-notes" class="form-control" rows="2" placeholder="Notes additionnelles..."></textarea>
+                        </div>
+                        <button type="submit" class="btn mt-3">Enregistrer RDV</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Liste des Rendez-vous</h3>
+                    <div class="appointment-list">
+                        <div id="appointments-list"></div>
+                    </div>
+                </div>
+            </section>
+
             <section id="laboratory" class="content">
                 <h2 class="section-title">Laboratoire</h2>
                 <div class="card">
@@ -423,8 +509,6 @@
                      </div>
                  </div>
             </section>
-            
-            <section id="appointments" class="content"><h2 class="section-title">Rendez-vous</h2><p>Gestion des RDV.</p></section>
             
             <section id="administration" class="content">
                 <h2 class="section-title">Administration - Statistiques</h2>
@@ -574,9 +658,56 @@
                         <div class="d-flex" style="gap: 15px; margin-top: 15px;">
                             <input type="text" id="new-lab-analysis" class="form-control" placeholder="Nouvelle analyse">
                             <input type="number" id="new-lab-analysis-price" class="form-control" placeholder="Prix (Gdes)">
+                            <select id="new-lab-analysis-type" class="form-control">
+                                <option value="text">Type Texte</option>
+                                <option value="image">Type Image</option>
+                            </select>
                             <button type="button" id="add-lab-analysis-settings-btn" class="btn btn-success"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <section id="messages" class="content">
+                <h2 class="section-title">Messagerie</h2>
+                <div class="messages-container">
+                    <div class="message-list">
+                        <h4>Messages Reçus</h4>
+                        <div id="messages-list"></div>
+                    </div>
+                    <div class="message-details">
+                        <div id="message-detail">
+                            <p class="text-center">Sélectionnez un message pour afficher son contenu</p>
+                        </div>
+                        <div class="new-message-form hidden">
+                            <h4>Nouveau Message</h4>
+                            <form id="new-message-form">
+                                <div class="form-group">
+                                    <label class="form-label">Destinataire</label>
+                                    <select id="message-recipient" class="form-control">
+                                        <option value="">Sélectionner un destinataire</option>
+                                        <option value="reception">Secrétariat</option>
+                                        <option value="doctor">Docteur</option>
+                                        <option value="lab">Laboratoire</option>
+                                        <option value="pharmacy">Pharmacie</option>
+                                        <option value="cashier">Caisse</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Sujet</label>
+                                    <input type="text" id="message-subject" class="form-control" placeholder="Sujet du message">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Message</label>
+                                    <textarea id="message-content" class="form-control" rows="5" placeholder="Contenu du message"></textarea>
+                                </div>
+                                <button type="submit" class="btn">Envoyer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button id="new-message-btn" class="btn btn-success"><i class="fas fa-plus"></i> Nouveau Message</button>
                 </div>
             </section>
         </div>
@@ -595,6 +726,7 @@ const state = {
     prescriptions: [],
     payments: [],
     transactions: [],
+    appointments: [],
     stock: [
         {id: 'MED001', medication: 'Paracétamol 500mg', quantity: 100, price: 50},
         {id: 'MED002', medication: 'Amoxicilline', quantity: 50, price: 150}
@@ -604,8 +736,8 @@ const state = {
         { id: 2, name: 'Pédiatrique', price: 300, active: true }
     ],
     labAnalyses: [
-        { id: 1, name: 'Hémogramme', price: 300, active: true },
-        { id: 2, name: 'Malaria', price: 200, active: true }
+        { id: 1, name: 'Hémogramme', price: 300, active: true, resultType: 'text' },
+        { id: 2, name: 'Malaria', price: 200, active: true, resultType: 'image' }
     ],
     externalServices: [
         { id: 1, name: 'Injection', price: 100, active: true }
@@ -619,8 +751,10 @@ const state = {
         address: 'Port-au-Prince, Haïti',
         phone: '(509) 1234-5678'
     },
+    messages: [],
     counter: 1,
-    patientVitals: {} // Stocke les signes vitaux par patientId
+    patientVitals: {}, // Stocke les signes vitaux par patientId
+    outOfStockMeds: {} // Stocke les médicaments hors stock par patientId
 };
 
 // --- INITIALIZATION ---
@@ -633,10 +767,12 @@ function initApp() {
     setupNavigation();
     setupPatients();
     setupConsultation();
+    setupAppointments();
     setupPharmacy();
     setupLaboratory();
     setupCashier();
     setupSettings();
+    setupMessages();
     loadDemoData();
     updateDashboard();
     updateAdminStats();
@@ -714,6 +850,11 @@ function setupLogin() {
         
         // Mettre à jour l'affichage des paramètres
         updateSettingsDisplay();
+        
+        // Mettre à jour les messages si l'utilisateur est réception
+        if (state.currentRole === 'reception') {
+            updateMessagesDisplay();
+        }
     });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
@@ -723,12 +864,12 @@ function setupLogin() {
 
 function getTabsForRole(role) {
     const roleTabs = {
-        'admin': ['dashboard', 'patients', 'consultation', 'appointments', 'laboratory', 'pharmacy', 'cashier', 'administration', 'settings'],
-        'doctor': ['dashboard', 'patients', 'consultation'],
-        'lab': ['dashboard', 'laboratory'],
-        'pharmacy': ['dashboard', 'pharmacy'],
-        'reception': ['dashboard', 'patients', 'appointments'],
-        'cashier': ['dashboard', 'cashier']
+        'admin': ['dashboard', 'patients', 'consultation', 'appointments', 'laboratory', 'pharmacy', 'cashier', 'administration', 'settings', 'messages'],
+        'doctor': ['dashboard', 'patients', 'consultation', 'appointments', 'messages'],
+        'lab': ['dashboard', 'laboratory', 'messages'],
+        'pharmacy': ['dashboard', 'pharmacy', 'messages'],
+        'reception': ['dashboard', 'patients', 'appointments', 'messages'],
+        'cashier': ['dashboard', 'cashier', 'messages']
     };
     
     return roleTabs[role] || ['dashboard'];
@@ -746,6 +887,18 @@ function setupNavigation() {
             // Mettre à jour les statistiques admin si on accède à cette section
             if (this.dataset.target === 'administration' && state.currentRole === 'admin') {
                 updateAdminStats();
+            }
+            
+            // Mettre à jour les messages si on accède à cette section
+            if (this.dataset.target === 'messages') {
+                updateMessagesDisplay();
+            }
+            
+            // Mettre à jour les rendez-vous si on accède à cette section
+            if (this.dataset.target === 'appointments' && (state.currentRole === 'doctor' || state.currentRole === 'reception' || state.currentRole === 'admin')) {
+                updateAppointmentsList();
+                loadDoctorsForAppointments();
+                loadConsultationTypesForAppointments();
             }
         });
     });
@@ -774,6 +927,7 @@ function updateRoleBasedDashboard() {
             <div class="stats-container">
                 <div class="stat-card"><div class="stat-icon" style="background:#1a6bca"><i class="fas fa-user-injured"></i></div><div class="stat-info"><h3 id="stat-my-patients">0</h3><p>Mes Patients Aujourd'hui</p></div></div>
                 <div class="stat-card"><div class="stat-icon" style="background:#28a745"><i class="fas fa-stethoscope"></i></div><div class="stat-info"><h3 id="stat-my-consultations">0</h3><p>Consultations</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#17a2b8"><i class="fas fa-calendar-check"></i></div><div class="stat-info"><h3 id="stat-my-appointments">0</h3><p>RDV Aujourd'hui</p></div></div>
             </div>
             <div class="card mt-3">
                 <h3>Mes Consultations Récentes</h3>
@@ -805,6 +959,19 @@ function updateRoleBasedDashboard() {
             </div>
         `;
         updateCashierDashboard();
+    } else if (state.currentRole === 'reception') {
+        dashboardSection.innerHTML += `
+            <div class="stats-container">
+                <div class="stat-card"><div class="stat-icon" style="background:#1a6bca"><i class="fas fa-calendar-check"></i></div><div class="stat-info"><h3 id="stat-reception-appointments">0</h3><p>RDV Aujourd'hui</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#28a745"><i class="fas fa-user-injured"></i></div><div class="stat-info"><h3 id="stat-reception-patients">0</h3><p>Nouveaux Patients</p></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#17a2b8"><i class="fas fa-envelope"></i></div><div class="stat-info"><h3 id="stat-reception-messages">0</h3><p>Messages Non Lus</p></div></div>
+            </div>
+            <div class="card mt-3">
+                <h3>Prochains RDV</h3>
+                <div id="reception-next-appointments"></div>
+            </div>
+        `;
+        updateReceptionDashboard();
     }
 }
 
@@ -812,9 +979,11 @@ function updateDoctorDashboard() {
     const today = new Date().toLocaleDateString('fr-FR');
     const myConsultations = state.consultations.filter(c => c.doctor === state.currentUser && c.date === today);
     const myPatients = [...new Set(myConsultations.map(c => c.patientId))];
+    const myAppointments = state.appointments.filter(a => a.doctor === state.currentUser && a.date === today && a.status !== 'cancelled');
     
     document.getElementById('stat-my-patients').textContent = myPatients.length;
     document.getElementById('stat-my-consultations').textContent = myConsultations.length;
+    document.getElementById('stat-my-appointments').textContent = myAppointments.length;
     
     const recentContainer = document.getElementById('my-recent-consultations');
     recentContainer.innerHTML = '';
@@ -857,6 +1026,35 @@ function updateCashierDashboard() {
     
     document.getElementById('stat-cashier-today').textContent = totalToday + ' Gdes';
     document.getElementById('stat-cashier-patients').textContent = patientsServed;
+}
+
+function updateReceptionDashboard() {
+    const today = new Date().toLocaleDateString('fr-FR');
+    const todayAppointments = state.appointments.filter(a => a.date === today && a.status !== 'cancelled');
+    const newPatients = state.patients.filter(p => p.registrationDate === today);
+    const unreadMessages = state.messages.filter(m => m.recipient === 'reception' && !m.read).length;
+    
+    document.getElementById('stat-reception-appointments').textContent = todayAppointments.length;
+    document.getElementById('stat-reception-patients').textContent = newPatients.length;
+    document.getElementById('stat-reception-messages').textContent = unreadMessages;
+    
+    const appointmentsContainer = document.getElementById('reception-next-appointments');
+    appointmentsContainer.innerHTML = '';
+    
+    todayAppointments.slice(0, 5).forEach(appointment => {
+        const patient = state.patients.find(p => p.id === appointment.patientId);
+        appointmentsContainer.innerHTML += `
+            <div class="service-item">
+                <div>
+                    <strong>${patient ? patient.name : 'Patient inconnu'}</strong><br>
+                    <small>Heure: ${appointment.time} - Docteur: ${appointment.doctor}</small>
+                </div>
+                <div>
+                    <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
+                </div>
+            </div>
+        `;
+    });
 }
 
 // --- UTILITIES ---
@@ -965,6 +1163,187 @@ function generatePatientCard(patient) {
     }, 500);
 }
 
+// --- RENDEZ-VOUS ---
+function setupAppointments() {
+    document.getElementById('appointment-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const patientSearch = document.getElementById('appointment-patient-search').value;
+        const patient = findPatient(patientSearch);
+        
+        if (!patient) {
+            showAlert("Patient non trouvé. Veuillez entrer un ID ou nom valide.", 'danger');
+            return;
+        }
+        
+        const doctor = document.getElementById('appointment-doctor').value;
+        const date = document.getElementById('appointment-date').value;
+        const time = document.getElementById('appointment-time').value;
+        const type = document.getElementById('appointment-type').value;
+        const notes = document.getElementById('appointment-notes').value;
+        
+        if (!doctor || !date || !time || !type) {
+            showAlert("Veuillez remplir tous les champs obligatoires.", 'warning');
+            return;
+        }
+        
+        const appointmentId = 'RDV' + Date.now();
+        const newAppointment = {
+            id: appointmentId,
+            patientId: patient.id,
+            patientName: patient.name,
+            doctor: doctor,
+            date: date,
+            time: time,
+            type: type,
+            notes: notes,
+            status: 'pending',
+            createdBy: state.currentUser,
+            createdAt: new Date().toLocaleString('fr-FR')
+        };
+        
+        state.appointments.push(newAppointment);
+        updateAppointmentsList();
+        showAlert("Rendez-vous créé avec succès", 'success');
+        
+        // Réinitialiser le formulaire
+        e.target.reset();
+    });
+    
+    // Recherche de patient avec suggestions
+    const patientSearchInput = document.getElementById('appointment-patient-search');
+    patientSearchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const suggestionsDiv = document.getElementById('patient-suggestions');
+        
+        if (searchTerm.length < 2) {
+            suggestionsDiv.classList.add('hidden');
+            return;
+        }
+        
+        const filteredPatients = state.patients.filter(p => 
+            p.name.toLowerCase().includes(searchTerm) || 
+            p.id.toLowerCase().includes(searchTerm)
+        ).slice(0, 5);
+        
+        if (filteredPatients.length > 0) {
+            suggestionsDiv.innerHTML = '';
+            filteredPatients.forEach(p => {
+                suggestionsDiv.innerHTML += `
+                    <div class="suggestion-item" style="padding:5px 10px; cursor:pointer;" 
+                         onclick="selectPatientForAppointment('${p.id}', '${p.name}')">
+                        ${p.name} (${p.id})
+                    </div>
+                `;
+            });
+            suggestionsDiv.classList.remove('hidden');
+        } else {
+            suggestionsDiv.classList.add('hidden');
+        }
+    });
+}
+
+function selectPatientForAppointment(patientId, patientName) {
+    document.getElementById('appointment-patient-search').value = `${patientName} (${patientId})`;
+    document.getElementById('patient-suggestions').classList.add('hidden');
+}
+
+function loadDoctorsForAppointments() {
+    const doctorSelect = document.getElementById('appointment-doctor');
+    doctorSelect.innerHTML = '<option value="">Sélectionner un docteur</option>';
+    
+    // Filtrer les employés avec rôle docteur
+    const doctors = state.employees.filter(emp => emp.role === 'doctor');
+    doctors.forEach(doctor => {
+        doctorSelect.innerHTML += `<option value="${doctor.name}">${doctor.name}</option>`;
+    });
+}
+
+function loadConsultationTypesForAppointments() {
+    const typeSelect = document.getElementById('appointment-type');
+    typeSelect.innerHTML = '<option value="">Sélectionner un type</option>';
+    
+    state.consultationTypes.forEach(type => {
+        if (type.active) {
+            typeSelect.innerHTML += `<option value="${type.name}">${type.name}</option>`;
+        }
+    });
+}
+
+function updateAppointmentsList() {
+    const appointmentsList = document.getElementById('appointments-list');
+    appointmentsList.innerHTML = '';
+    
+    // Filtrer les rendez-vous selon le rôle
+    let filteredAppointments = [];
+    
+    if (state.currentRole === 'doctor') {
+        filteredAppointments = state.appointments.filter(a => a.doctor === state.currentUser);
+    } else if (state.currentRole === 'reception' || state.currentRole === 'admin') {
+        filteredAppointments = state.appointments;
+    }
+    
+    if (filteredAppointments.length === 0) {
+        appointmentsList.innerHTML = '<p class="text-center">Aucun rendez-vous trouvé</p>';
+        return;
+    }
+    
+    // Trier par date et heure
+    filteredAppointments.sort((a, b) => {
+        const dateA = new Date(a.date + ' ' + a.time);
+        const dateB = new Date(b.date + ' ' + b.time);
+        return dateA - dateB;
+    });
+    
+    filteredAppointments.forEach(appointment => {
+        const statusClass = `status-${appointment.status}`;
+        const statusText = appointment.status === 'pending' ? 'En attente' : 
+                          appointment.status === 'confirmed' ? 'Confirmé' : 
+                          appointment.status === 'cancelled' ? 'Annulé' : 
+                          appointment.status === 'completed' ? 'Terminé' : appointment.status;
+        
+        appointmentsList.innerHTML += `
+            <div class="appointment-item">
+                <div class="d-flex justify-between">
+                    <div>
+                        <h4>${appointment.patientName} (${appointment.patientId})</h4>
+                        <p><strong>Docteur:</strong> ${appointment.doctor}</p>
+                        <p><strong>Date:</strong> ${appointment.date} à ${appointment.time}</p>
+                        <p><strong>Type:</strong> ${appointment.type}</p>
+                        ${appointment.notes ? `<p><strong>Notes:</strong> ${appointment.notes}</p>` : ''}
+                    </div>
+                    <div>
+                        <span class="appointment-status ${statusClass}">${statusText}</span>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-success" onclick="updateAppointmentStatus('${appointment.id}', 'confirmed')">
+                                Confirmer
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="updateAppointmentStatus('${appointment.id}', 'cancelled')">
+                                Annuler
+                            </button>
+                            <button class="btn btn-sm btn-info" onclick="updateAppointmentStatus('${appointment.id}', 'completed')">
+                                Terminer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <small>Créé par ${appointment.createdBy} le ${appointment.createdAt}</small>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function updateAppointmentStatus(appointmentId, status) {
+    const appointment = state.appointments.find(a => a.id === appointmentId);
+    if (appointment) {
+        appointment.status = status;
+        updateAppointmentsList();
+        showAlert(`Statut du rendez-vous mis à jour: ${status}`, 'success');
+    }
+}
+
 // --- SETTINGS ---
 function setupSettings() {
     // Sauvegarde des informations de l'hôpital
@@ -1035,6 +1414,7 @@ function setupSettings() {
             priceInput.value = '';
             updateSettingsDisplay();
             updateConsultationTypeSelect();
+            loadConsultationTypesForAppointments();
             showAlert("Type de consultation ajouté !", 'success');
         });
     }
@@ -1068,16 +1448,25 @@ function setupSettings() {
             e.preventDefault();
             const nameInput = document.getElementById('new-lab-analysis');
             const priceInput = document.getElementById('new-lab-analysis-price');
+            const typeSelect = document.getElementById('new-lab-analysis-type');
             
             const name = nameInput.value;
             const price = parseFloat(priceInput.value.replace(',', '.'));
+            const resultType = typeSelect.value;
             
             if(!name || isNaN(price)) {
                 showAlert("Erreur de saisie.", 'warning');
                 return;
             }
             
-            state.labAnalyses.push({ id: Date.now(), name: name, price: price, active: true });
+            state.labAnalyses.push({ 
+                id: Date.now(), 
+                name: name, 
+                price: price, 
+                active: true,
+                resultType: resultType
+            });
+            
             nameInput.value = '';
             priceInput.value = '';
             updateSettingsDisplay();
@@ -1109,7 +1498,11 @@ function updateSettingsDisplay() {
     labList.innerHTML = '';
     state.labAnalyses.forEach(a => {
         if(a.active) {
-            labList.innerHTML += `<div class="setting-item"><strong>${a.name}</strong> <span class="service-price">${a.price} Gdes</span></div>`;
+            const typeBadge = a.resultType === 'image' ? 
+                '<span class="result-type-badge result-type-image">Image</span>' : 
+                '<span class="result-type-badge result-type-text">Texte</span>';
+            
+            labList.innerHTML += `<div class="setting-item"><strong>${a.name}</strong> ${typeBadge} <span class="service-price">${a.price} Gdes</span></div>`;
         }
     });
 }
@@ -1195,7 +1588,7 @@ function setupConsultation() {
             const labDiv = document.getElementById('lab-analyses-selection');
             labDiv.innerHTML = '';
             state.labAnalyses.forEach(a => {
-                labDiv.innerHTML += `<label><input type="checkbox" value="${a.name}" data-price="${a.price}"> ${a.name} (${a.price} Gdes)</label>`;
+                labDiv.innerHTML += `<label><input type="checkbox" value="${a.name}" data-price="${a.price}" data-type="${a.resultType}"> ${a.name} (${a.price} Gdes)</label>`;
             });
         } else {
             showAlert("Patient introuvable");
@@ -1278,7 +1671,11 @@ function setupConsultation() {
         
         const checkboxes = document.querySelectorAll('#lab-analyses-selection input:checked');
         let analysesArr = [];
-        checkboxes.forEach(cb => analysesArr.push({name: cb.value, price: parseFloat(cb.dataset.price)}));
+        checkboxes.forEach(cb => analysesArr.push({
+            name: cb.value, 
+            price: parseFloat(cb.dataset.price),
+            resultType: cb.dataset.type
+        }));
 
         state.consultations.push({
             id: Date.now(),
@@ -1572,11 +1969,16 @@ function setupLaboratory() {
             
             let action = '';
             if((status === 'Payé/Validé' && !a.results) || (isEmergency && !a.results)) {
-                action = `<button class="btn btn-success btn-sm mt-2" onclick="enterLabResults('${a.patientId}', ${a.details.length}, '${a.date}')">Saisir Résultats</button>`;
+                action = `<button class="btn btn-success btn-sm mt-2" onclick="enterLabResults('${a.patientId}', '${a.date}')">Saisir Résultats</button>`;
             } else if (!a.results) {
                 action = `<span class="text-muted">Paiement requis à la caisse</span>`;
             } else {
-                action = `<div><strong>Résultats:</strong><pre>${a.results}</pre></div>`;
+                // Afficher les résultats selon le type
+                if (a.results && a.results.startsWith('data:image')) {
+                    action = `<div><strong>Résultats:</strong><br><img src="${a.results}" alt="Résultat image" class="image-preview"></div>`;
+                } else {
+                    action = `<div><strong>Résultats:</strong><pre>${a.results}</pre></div>`;
+                }
             }
 
             html += `
@@ -1593,7 +1995,7 @@ function setupLaboratory() {
     });
 }
 
-function enterLabResults(patientId, analysisCount, analysisDate) {
+function enterLabResults(patientId, analysisDate) {
     const patient = state.patients.find(p => p.id === patientId);
     const isEmergency = patient && patient.id.startsWith('URG');
     
@@ -1610,23 +2012,84 @@ function enterLabResults(patientId, analysisCount, analysisDate) {
         return;
     }
     
-    let results = '';
-    for(let i = 1; i <= analysisCount; i++) {
-        const analysisName = analysis.details[i-1] ? analysis.details[i-1].name : `Analyse ${i}`;
-        const result = prompt(`Résultat pour ${analysisName}:`);
-        if (result) {
-            results += `${analysisName}: ${result}\n`;
+    // Vérifier le type de résultat pour chaque analyse
+    let resultForm = '<div class="card"><h4>Saisie des Résultats</h4>';
+    
+    analysis.details.forEach((detail, index) => {
+        const analysisType = state.labAnalyses.find(a => a.name === detail.name);
+        const isImageType = analysisType && analysisType.resultType === 'image';
+        
+        if (isImageType) {
+            resultForm += `
+                <div class="form-group">
+                    <label class="form-label">${detail.name} (Image)</label>
+                    <div class="upload-btn-wrapper">
+                        <button class="btn btn-secondary">Choisir une image</button>
+                        <input type="file" id="analysis-image-${index}" accept="image/*" class="form-control">
+                    </div>
+                    <div id="image-preview-${index}" class="hidden"></div>
+                </div>
+            `;
+        } else {
+            resultForm += `
+                <div class="form-group">
+                    <label class="form-label">${detail.name} (Texte)</label>
+                    <input type="text" id="analysis-text-${index}" class="form-control" placeholder="Résultat...">
+                </div>
+            `;
         }
+    });
+    
+    resultForm += `
+        <button class="btn btn-success" onclick="saveLabResults('${patientId}', '${analysisDate}')">Enregistrer Résultats</button>
+        </div>
+    `;
+    
+    showAlert(resultForm, 'info');
+}
+
+function saveLabResults(patientId, analysisDate) {
+    const analysis = state.analyses.find(a => a.patientId === patientId && a.date === analysisDate && !a.results);
+    
+    if (!analysis) {
+        showAlert("Analyse non trouvée", 'danger');
+        return;
     }
     
-    if (results) {
-        analysis.results = results;
+    let allResults = '';
+    
+    analysis.details.forEach((detail, index) => {
+        const analysisType = state.labAnalyses.find(a => a.name === detail.name);
+        const isImageType = analysisType && analysisType.resultType === 'image';
+        
+        if (isImageType) {
+            const fileInput = document.getElementById(`analysis-image-${index}`);
+            if (fileInput && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Stocker l'image en base64
+                    analysis.results = e.target.result;
+                    showAlert("Résultats image enregistrés", 'success');
+                    document.getElementById('lab-search-btn').click();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        } else {
+            const textInput = document.getElementById(`analysis-text-${index}`);
+            if (textInput && textInput.value) {
+                allResults += `${detail.name}: ${textInput.value}\n`;
+            }
+        }
+    });
+    
+    if (allResults) {
+        analysis.results = allResults;
         showAlert("Résultats enregistrés", 'success');
         document.getElementById('lab-search-btn').click();
     }
 }
 
-// --- CASHIER ---
+// --- CAISSE ---
 function setupCashier() {
     document.getElementById('cashier-search-btn').addEventListener('click', () => {
         const inputVal = document.getElementById('cashier-patient-id').value;
@@ -1644,70 +2107,119 @@ function setupCashier() {
         let totalAmount = 0;
         let servicesHtml = '';
         
+        // Services par catégorie
+        servicesHtml += '<div class="service-category">';
+        servicesHtml += '<h4>Consultations</h4>';
+        
         // Consultations en attente
         const pendingConsultations = state.consultations.filter(c => 
             c.patientId === patient.id && !c.paid
         );
         
-        pendingConsultations.forEach(consult => {
-            const consultType = state.consultationTypes.find(t => t.name === consult.type);
-            const price = consultType ? consultType.price : 500;
-            totalAmount += price;
-            
-            servicesHtml += `
-                <div class="service-item" data-type="consultation" data-id="${consult.id}" data-price="${price}">
-                    <div>
-                        <input type="checkbox" class="service-checkbox" checked>
-                        <strong>Consultation ${consult.type}</strong><br>
-                        <small>${consult.date} - Dr. ${consult.doctor}</small>
+        if (pendingConsultations.length === 0) {
+            servicesHtml += '<p class="text-muted">Aucune consultation en attente</p>';
+        } else {
+            pendingConsultations.forEach(consult => {
+                const consultType = state.consultationTypes.find(t => t.name === consult.type);
+                const price = consultType ? consultType.price : 500;
+                totalAmount += price;
+                
+                servicesHtml += `
+                    <div class="service-item" data-type="consultation" data-id="${consult.id}" data-price="${price}">
+                        <div>
+                            <input type="checkbox" class="service-checkbox" checked>
+                            <strong>Consultation ${consult.type}</strong><br>
+                            <small>${consult.date} - Dr. ${consult.doctor}</small>
+                        </div>
+                        <div>${price} Gdes</div>
                     </div>
-                    <div>${price} Gdes</div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
+        servicesHtml += '</div>';
         
-        // Analyses en attente
+        // Analyses
+        servicesHtml += '<div class="service-category">';
+        servicesHtml += '<h4>Analyses de Laboratoire</h4>';
+        
         const pendingAnalyses = state.analyses.filter(a => 
             a.patientId === patient.id && a.status === 'pending-payment'
         );
         
-        pendingAnalyses.forEach(analysis => {
-            const analysisPrice = analysis.details.reduce((sum, d) => sum + d.price, 0);
-            totalAmount += analysisPrice;
-            
-            servicesHtml += `
-                <div class="service-item" data-type="analysis" data-id="${analysis.patientId}" data-price="${analysisPrice}">
-                    <div>
-                        <input type="checkbox" class="service-checkbox" checked>
-                        <strong>Analyses de laboratoire</strong><br>
-                        <small>${analysis.details.map(d => d.name).join(', ')}</small>
+        if (pendingAnalyses.length === 0) {
+            servicesHtml += '<p class="text-muted">Aucune analyse en attente</p>';
+        } else {
+            pendingAnalyses.forEach(analysis => {
+                const analysisPrice = analysis.details.reduce((sum, d) => sum + d.price, 0);
+                totalAmount += analysisPrice;
+                
+                servicesHtml += `
+                    <div class="service-item" data-type="analysis" data-id="${analysis.patientId}" data-date="${analysis.date}" data-price="${analysisPrice}">
+                        <div>
+                            <input type="checkbox" class="service-checkbox" checked>
+                            <strong>Analyses de laboratoire</strong><br>
+                            <small>${analysis.details.map(d => d.name).join(', ')}</small>
+                        </div>
+                        <div>${analysisPrice} Gdes</div>
                     </div>
-                    <div>${analysisPrice} Gdes</div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
+        servicesHtml += '</div>';
         
-        // Médicaments en attente
+        // Médicaments
+        servicesHtml += '<div class="service-category">';
+        servicesHtml += '<h4>Médicaments</h4>';
+        
         const pendingPrescriptions = state.prescriptions.filter(p => 
             p.patientId === patient.id && p.status === 'pending-payment'
         );
         
-        pendingPrescriptions.forEach(prescription => {
-            // Estimation du prix des médicaments
-            const medPrice = 100; // Prix estimé, à ajuster selon le stock réel
-            totalAmount += medPrice;
-            
-            servicesHtml += `
-                <div class="service-item" data-type="prescription" data-id="${prescription.patientId}" data-price="${medPrice}">
-                    <div>
-                        <input type="checkbox" class="service-checkbox" checked>
-                        <strong>Médicaments</strong><br>
-                        <small>${prescription.details}</small>
+        if (pendingPrescriptions.length === 0) {
+            servicesHtml += '<p class="text-muted">Aucun médicament en attente</p>';
+        } else {
+            pendingPrescriptions.forEach(prescription => {
+                // Estimation du prix des médicaments
+                const medPrice = 100; // Prix estimé, à ajuster selon le stock réel
+                totalAmount += medPrice;
+                
+                servicesHtml += `
+                    <div class="service-item" data-type="prescription" data-id="${prescription.patientId}" data-details="${prescription.details}" data-price="${medPrice}">
+                        <div>
+                            <input type="checkbox" class="service-checkbox" checked>
+                            <strong>Médicaments</strong><br>
+                            <small>${prescription.details}</small>
+                        </div>
+                        <div>${medPrice} Gdes</div>
                     </div>
-                    <div>${medPrice} Gdes</div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
+        servicesHtml += '</div>';
+        
+        // Services externes
+        servicesHtml += '<div class="service-category">';
+        servicesHtml += '<h4>Services Externes</h4>';
+        
+        // Ajouter les services externes disponibles
+        if (state.externalServices.length === 0) {
+            servicesHtml += '<p class="text-muted">Aucun service externe disponible</p>';
+        } else {
+            state.externalServices.forEach(service => {
+                if (service.active) {
+                    servicesHtml += `
+                        <div class="service-item" data-type="external" data-id="${service.id}" data-price="${service.price}">
+                            <div>
+                                <input type="checkbox" class="service-checkbox">
+                                <strong>${service.name}</strong>
+                            </div>
+                            <div>${service.price} Gdes</div>
+                        </div>
+                    `;
+                }
+            });
+        }
+        servicesHtml += '</div>';
         
         // Afficher les médicaments hors stock pour ce patient
         if (state.outOfStockMeds && state.outOfStockMeds[patient.id]) {
@@ -1722,61 +2234,61 @@ function setupCashier() {
             });
         }
         
-        if (servicesHtml === '' && (!state.outOfStockMeds || !state.outOfStockMeds[patient.id])) {
+        if (servicesHtml.includes('service-item') || (state.outOfStockMeds && state.outOfStockMeds[patient.id])) {
+            container.innerHTML = `
+                <div class="card">
+                    <h3>Services en attente pour ${patient.name} (${patient.id})</h3>
+                    <div id="services-list">
+                        ${servicesHtml}
+                    </div>
+                    
+                    <div class="cashier-total">
+                        <h3>Total sélectionné: <span id="total-amount">${totalAmount}</span> Gdes</h3>
+                    </div>
+                    
+                    <h4>Moyen de paiement</h4>
+                    <div class="payment-method-selector">
+                        <div class="payment-method active" data-method="cash">
+                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                            <p>Cash</p>
+                        </div>
+                        <div class="payment-method" data-method="moncash">
+                            <i class="fas fa-mobile-alt fa-2x"></i>
+                            <p>Mon Cash</p>
+                        </div>
+                        <div class="payment-method" data-method="natcash">
+                            <i class="fas fa-wallet fa-2x"></i>
+                            <p>NatCash</p>
+                        </div>
+                        <div class="payment-method" data-method="card">
+                            <i class="fas fa-credit-card fa-2x"></i>
+                            <p>Carte Bancaire</p>
+                        </div>
+                        <div class="payment-method" data-method="transfer">
+                            <i class="fas fa-university fa-2x"></i>
+                            <p>Virement</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-between mt-3">
+                        <button id="generate-global-receipt-btn" class="btn btn-info">
+                            <i class="fas fa-receipt"></i> Générer Reçu Global
+                        </button>
+                        <button id="process-payment-btn" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle"></i> Procéder au Paiement
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            setupPaymentMethods();
+            setupServiceSelection();
+            setupProcessPayment(patient, totalAmount);
+            setupGlobalReceipt(patient);
+        } else {
             container.innerHTML = `<div class="alert alert-success">Aucun service en attente de paiement pour ${patient.name}.</div>`;
             return;
         }
-        
-        container.innerHTML = `
-            <div class="card">
-                <h3>Services en attente pour ${patient.name} (${patient.id})</h3>
-                <div id="services-list">
-                    ${servicesHtml}
-                </div>
-                
-                <div class="cashier-total">
-                    <h3>Total à payer: <span id="total-amount">${totalAmount}</span> Gdes</h3>
-                </div>
-                
-                <h4>Moyen de paiement</h4>
-                <div class="payment-method-selector">
-                    <div class="payment-method active" data-method="cash">
-                        <i class="fas fa-money-bill-wave fa-2x"></i>
-                        <p>Cash</p>
-                    </div>
-                    <div class="payment-method" data-method="moncash">
-                        <i class="fas fa-mobile-alt fa-2x"></i>
-                        <p>Mon Cash</p>
-                    </div>
-                    <div class="payment-method" data-method="natcash">
-                        <i class="fas fa-wallet fa-2x"></i>
-                        <p>NatCash</p>
-                    </div>
-                    <div class="payment-method" data-method="card">
-                        <i class="fas fa-credit-card fa-2x"></i>
-                        <p>Carte Bancaire</p>
-                    </div>
-                    <div class="payment-method" data-method="transfer">
-                        <i class="fas fa-university fa-2x"></i>
-                        <p>Virement</p>
-                    </div>
-                </div>
-                
-                <div class="d-flex justify-between mt-3">
-                    <button id="generate-global-receipt-btn" class="btn btn-info">
-                        <i class="fas fa-receipt"></i> Générer Reçu Global
-                    </button>
-                    <button id="process-payment-btn" class="btn btn-success btn-lg">
-                        <i class="fas fa-check-circle"></i> Procéder au Paiement
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        setupPaymentMethods();
-        setupServiceSelection();
-        setupProcessPayment(patient, totalAmount);
-        setupGlobalReceipt(patient);
     });
     
     // Bouton pour imprimer les médicaments hors stock
@@ -1831,16 +2343,35 @@ function setupProcessPayment(patient, initialTotal) {
             const serviceItem = cb.closest('.service-item');
             const type = serviceItem.dataset.type;
             const id = serviceItem.dataset.id;
+            const date = serviceItem.dataset.date;
+            const details = serviceItem.dataset.details;
+            const price = parseFloat(serviceItem.dataset.price);
             
             if (type === 'consultation') {
                 const consult = state.consultations.find(c => c.id == id);
                 if (consult) consult.paid = true;
             } else if (type === 'analysis') {
-                const analysis = state.analyses.find(a => a.patientId === id && a.status === 'pending-payment');
+                const analysis = state.analyses.find(a => a.patientId === id && a.date === date && a.status === 'pending-payment');
                 if (analysis) analysis.status = 'paid';
             } else if (type === 'prescription') {
-                const prescription = state.prescriptions.find(p => p.patientId === id && p.status === 'pending-payment');
+                const prescription = state.prescriptions.find(p => p.patientId === id && p.details === details && p.status === 'pending-payment');
                 if (prescription) prescription.status = 'paid';
+            } else if (type === 'external') {
+                // Ajouter le service externe comme transaction
+                const service = state.externalServices.find(s => s.id == id);
+                if (service) {
+                    state.transactions.push({
+                        id: 'EXT' + Date.now(),
+                        patientId: patient.id,
+                        patientName: patient.name,
+                        amount: price,
+                        method: selectedMethod,
+                        date: new Date().toLocaleDateString('fr-FR'),
+                        time: new Date().toLocaleTimeString('fr-FR'),
+                        agent: state.currentUser,
+                        service: service.name
+                    });
+                }
             }
         });
         
@@ -2015,6 +2546,26 @@ function generateGlobalReceipt(patient) {
         }
     });
     
+    // Services externes
+    state.externalServices.forEach(service => {
+        if (service.active) {
+            // Vérifier si le service a été payé (simplifié)
+            const servicePaid = state.transactions.some(t => 
+                t.patientId === patient.id && t.service === service.name
+            );
+            
+            if (servicePaid) {
+                totalPaid += service.price;
+                servicesList.innerHTML += `
+                    <div class="receipt-item">
+                        <span>${service.name} (Payé)</span>
+                        <span>${service.price} Gdes</span>
+                    </div>
+                `;
+            }
+        }
+    });
+    
     // Mettre à jour les totaux
     document.getElementById('receipt-total-amount').textContent = totalPaid;
     
@@ -2146,6 +2697,16 @@ function updateAdminStats() {
         };
     }
     
+    // Services externes
+    const externalServicesCount = state.transactions.filter(t => t.service).length;
+    const externalServicesAmount = state.transactions.filter(t => t.service).reduce((sum, t) => sum + t.amount, 0);
+    if (externalServicesCount > 0) {
+        serviceStats['Services Externes'] = { 
+            count: externalServicesCount, 
+            amount: externalServicesAmount 
+        };
+    }
+    
     // Urgences
     const emergencyCount = state.patients.filter(p => p.emergency).length;
     if (emergencyCount > 0) {
@@ -2180,12 +2741,167 @@ function updateAdminStats() {
             <tr>
                 <td>${t.date} ${t.time}</td>
                 <td>${t.patientName} (${t.patientId})</td>
-                <td>${t.method}</td>
+                <td>${t.service || 'Divers'}</td>
                 <td>${t.amount} Gdes</td>
+                <td>${t.method}</td>
                 <td>${t.agent}</td>
             </tr>
         `;
     });
+}
+
+// --- MESSAGERIE ---
+function setupMessages() {
+    document.getElementById('new-message-btn').addEventListener('click', () => {
+        document.querySelector('.new-message-form').classList.remove('hidden');
+        document.getElementById('message-detail').classList.add('hidden');
+    });
+    
+    document.getElementById('new-message-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const recipient = document.getElementById('message-recipient').value;
+        const subject = document.getElementById('message-subject').value;
+        const content = document.getElementById('message-content').value;
+        
+        if (!recipient || !subject || !content) {
+            showAlert("Veuillez remplir tous les champs", 'warning');
+            return;
+        }
+        
+        const newMessage = {
+            id: 'MSG' + Date.now(),
+            sender: state.currentUser,
+            senderRole: state.currentRole,
+            recipient: recipient,
+            subject: subject,
+            content: content,
+            timestamp: new Date().toLocaleString('fr-FR'),
+            read: false
+        };
+        
+        state.messages.push(newMessage);
+        updateMessagesDisplay();
+        
+        // Réinitialiser le formulaire
+        e.target.reset();
+        document.querySelector('.new-message-form').classList.add('hidden');
+        document.getElementById('message-detail').classList.remove('hidden');
+        
+        showAlert("Message envoyé avec succès", 'success');
+    });
+    
+    updateMessagesDisplay();
+}
+
+function updateMessagesDisplay() {
+    const messagesList = document.getElementById('messages-list');
+    messagesList.innerHTML = '';
+    
+    // Filtrer les messages selon le rôle
+    let filteredMessages = [];
+    
+    if (state.currentRole === 'reception') {
+        // La réception voit tous les messages qui lui sont destinés
+        filteredMessages = state.messages.filter(m => m.recipient === 'reception');
+    } else if (state.currentRole === 'admin') {
+        // L'admin voit tous les messages
+        filteredMessages = state.messages;
+    } else {
+        // Les autres rôles voient leurs messages envoyés et reçus
+        filteredMessages = state.messages.filter(m => 
+            m.recipient === state.currentRole || 
+            m.sender === state.currentUser ||
+            (m.recipient === 'reception' && m.senderRole === state.currentRole)
+        );
+    }
+    
+    if (filteredMessages.length === 0) {
+        messagesList.innerHTML = '<p class="text-center">Aucun message</p>';
+        return;
+    }
+    
+    // Trier par date (plus récent en premier)
+    filteredMessages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    filteredMessages.forEach(message => {
+        const isUnread = !message.read && message.recipient === state.currentRole;
+        const messageClass = isUnread ? 'message-item unread' : 'message-item';
+        
+        messagesList.innerHTML += `
+            <div class="${messageClass}" onclick="showMessageDetail('${message.id}')">
+                <div class="d-flex justify-between">
+                    <div>
+                        <strong>${message.subject}</strong><br>
+                        <span class="message-sender">De: ${message.sender} (${message.senderRole})</span><br>
+                        <span class="message-sender">À: ${message.recipient}</span>
+                    </div>
+                    <div class="message-time">${message.timestamp}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Mettre à jour le badge de messages non lus dans l'onglet
+    const unreadCount = filteredMessages.filter(m => !m.read && m.recipient === state.currentRole).length;
+    const messagesTab = document.getElementById('messages-tab');
+    if (unreadCount > 0) {
+        messagesTab.innerHTML = `<i class="fas fa-envelope"></i> Messages <span class="emergency-patient-tag">${unreadCount}</span>`;
+    } else {
+        messagesTab.innerHTML = `<i class="fas fa-envelope"></i> Messages`;
+    }
+}
+
+function showMessageDetail(messageId) {
+    const message = state.messages.find(m => m.id === messageId);
+    if (!message) return;
+    
+    // Marquer comme lu si destiné à l'utilisateur courant
+    if (message.recipient === state.currentRole) {
+        message.read = true;
+    }
+    
+    const messageDetail = document.getElementById('message-detail');
+    messageDetail.innerHTML = `
+        <h4>${message.subject}</h4>
+        <p><strong>De:</strong> ${message.sender} (${message.senderRole})</p>
+        <p><strong>À:</strong> ${message.recipient}</p>
+        <p><strong>Date:</strong> ${message.timestamp}</p>
+        <div class="message-content">
+            ${message.content.replace(/\n/g, '<br>')}
+        </div>
+        <div class="mt-3">
+            <button class="btn btn-secondary" onclick="replyToMessage('${message.sender}', '${message.senderRole}', '${message.subject}')">
+                <i class="fas fa-reply"></i> Répondre
+            </button>
+            <button class="btn btn-danger" onclick="deleteMessage('${message.id}')">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </div>
+    `;
+    
+    messageDetail.classList.remove('hidden');
+    document.querySelector('.new-message-form').classList.add('hidden');
+    
+    updateMessagesDisplay();
+}
+
+function replyToMessage(sender, senderRole, originalSubject) {
+    document.querySelector('.new-message-form').classList.remove('hidden');
+    document.getElementById('message-detail').classList.add('hidden');
+    
+    // Pré-remplir le formulaire de réponse
+    document.getElementById('message-recipient').value = senderRole;
+    document.getElementById('message-subject').value = 'Re: ' + originalSubject;
+}
+
+function deleteMessage(messageId) {
+    if (confirm("Voulez-vous vraiment supprimer ce message ?")) {
+        state.messages = state.messages.filter(m => m.id !== messageId);
+        updateMessagesDisplay();
+        document.getElementById('message-detail').innerHTML = '<p class="text-center">Sélectionnez un message pour afficher son contenu</p>';
+        showAlert("Message supprimé", 'success');
+    }
 }
 
 // --- DASHBOARD ---
@@ -2205,14 +2921,16 @@ function updateDashboard() {
         updatePharmacyDashboard();
     } else if (state.currentRole === 'cashier') {
         updateCashierDashboard();
+    } else if (state.currentRole === 'reception') {
+        updateReceptionDashboard();
     }
 }
 
 // --- DEMO DATA ---
 function loadDemoData() {
     state.patients.push(
-        {id: 'PA0001', name: 'Jean Dupont', dob: '1980-01-01', phone: '12345678', emergency: false, pediatric: false},
-        {id: 'URG0002', name: 'Marie Curie', dob: '1990-05-05', phone: '87654321', emergency: true, pediatric: false}
+        {id: 'PA0001', name: 'Jean Dupont', dob: '1980-01-01', phone: '12345678', emergency: false, pediatric: false, registrationDate: new Date().toLocaleDateString('fr-FR')},
+        {id: 'URG0002', name: 'Marie Curie', dob: '1990-05-05', phone: '87654321', emergency: true, pediatric: false, registrationDate: new Date().toLocaleDateString('fr-FR')}
     );
     
     state.consultations.push({
@@ -2235,7 +2953,7 @@ function loadDemoData() {
     
     state.analyses.push({
         patientId: 'PA0001',
-        details: [{name: 'Hémogramme', price: 300}],
+        details: [{name: 'Hémogramme', price: 300, resultType: 'text'}],
         status: 'paid',
         results: 'Normal',
         date: new Date().toLocaleDateString('fr-FR')
@@ -2265,9 +2983,38 @@ function loadDemoData() {
         time: '10:15'
     };
     
+    // Ajouter des rendez-vous de démo
+    state.appointments.push({
+        id: 'RDV001',
+        patientId: 'PA0001',
+        patientName: 'Jean Dupont',
+        doctor: 'Dr. Smith',
+        date: new Date().toLocaleDateString('fr-FR'),
+        time: '14:30',
+        type: 'Générale',
+        notes: 'Contrôle de routine',
+        status: 'confirmed',
+        createdBy: 'reception',
+        createdAt: new Date().toLocaleString('fr-FR')
+    });
+    
+    // Ajouter des messages de démo
+    state.messages.push({
+        id: 'MSG001',
+        sender: 'doctor',
+        senderRole: 'doctor',
+        recipient: 'reception',
+        subject: 'Demande de dossier patient',
+        content: 'Bonjour, pourriez-vous préparer le dossier du patient PA0001 pour ma consultation de cet après-midi ?\nCordialement,\nDr. Smith',
+        timestamp: new Date().toLocaleString('fr-FR'),
+        read: false
+    });
+    
     updatePatientTable();
     updateStockTable();
     updateEmployeesTable();
+    updateAppointmentsList();
+    updateMessagesDisplay();
 }
 </script>
 </body>
