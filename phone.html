@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a6bca">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Hôpital Saint-Luc">
+    <title>Patient - Hôpital Saint-Luc</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles PWA et mobile */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Container principal */
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
+        /* Header mobile */
+        .mobile-header {
+            background: linear-gradient(135deg, #1a6bca 0%, #0d4d9c 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .hospital-icon {
+            font-size: 24px;
+        }
+        
+        .hospital-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* Navigation mobile */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 8px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item.active {
+            color: #1a6bca;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* Écrans */
+        .screen {
+            display: none;
+            padding: 20px;
+            padding-bottom: 80px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eef5ff;
+        }
+        
+        .card-title {
+            color: #1a6bca;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Formulaires */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #1a6bca;
+            background: white;
+        }
+        
+        /* Boutons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #1a6bca 0%, #0d4d9c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn:hover, .btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 107, 202, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 14px;
+            width: auto;
+        }
+        
+        /* Messages et statut */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .message.warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        
+        .message.info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        /* Résultats d'analyse */
+        .result-item {
+            border: 1px solid #eef5ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .result-type {
+            font-weight: 600;
+            color: #1a6bca;
+        }
+        
+        .result-date {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .result-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-ready {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .result-content {
+            margin-top: 10px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+        
+        .result-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+        }
+        
+        /* Messages au secrétariat */
+        .message-list {
+            margin-top: 20px;
+        }
+        
+        .message-item {
+            border: 1px solid #eef5ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        
+        .message-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .message-text {
+            margin: 10px 0;
+        }
+        
+        .message-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #e9ecef;
+            color: #666;
+        }
+        
+        /* Profil patient */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #1a6bca 0%, #0d4d9c 100%);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+        }
+        
+        .patient-id-badge {
+            background: #1a6bca;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 10px auto;
+            display: inline-block;
+        }
+        
+        /* Rendez-vous */
+        .appointment-card {
+            border: 2px solid #eef5ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        
+        .appointment-title {
+            color: #1a6bca;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .appointment-details {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .appointment-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1001;
+            display: none;
+        }
+        
+        .install-prompt.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .close-install {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        /* Modal d'impression */
+        .print-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        .print-modal.active {
+            display: flex;
+        }
+        
+        .print-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+        
+        .print-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Responsive */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 500px;
+            }
+            
+            .mobile-nav {
+                max-width: 500px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1a6bca;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Services */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #eef5ff;
+            transition: all 0.3s;
+        }
+        
+        .service-card:active {
+            transform: scale(0.95);
+            border-color: #1a6bca;
+        }
+        
+        .service-icon {
+            font-size: 30px;
+            color: #1a6bca;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="mobile-header">
+            <div class="header-content">
+                <i class="fas fa-hospital-alt hospital-icon"></i>
+                <div class="hospital-name">Hôpital Saint-Luc</div>
+            </div>
+            <button class="logout-btn" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </header>
+
+        <!-- Écran de connexion -->
+        <section id="login-screen" class="screen active">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2>Espace Patient</h2>
+                <p>Connectez-vous avec votre numéro de dossier</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Connexion
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Numéro de dossier</label>
+                    <input type="text" id="patient-id" class="form-control" placeholder="Ex: PA0001 ou URG0002" required>
+                </div>
+                
+                <button class="btn" id="login-btn">
+                    <i class="fas fa-unlock"></i> Se connecter
+                </button>
+                
+                <div id="login-message" style="margin-top: 15px;"></div>
+                
+                <div style="margin-top: 20px; text-align: center; color: #666; font-size: 14px;">
+                    <p>Vous n'avez pas de numéro de dossier ?</p>
+                    <p>Contactez le secrétariat au (509) 1234-5678</p>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-title">
+                    <i class="fas fa-info-circle"></i>
+                    Mode démo
+                </div>
+                <p>Pour tester l'application :</p>
+                <ul style="margin: 10px 0 10px 20px; color: #666;">
+                    <li>Numéro: PA0001</li>
+                    <li>Numéro: URG0002</li>
+                </ul>
+                <button class="btn btn-secondary" id="demo-btn">
+                    <i class="fas fa-magic"></i> Remplir automatiquement
+                </button>
+            </div>
+        </section>
+
+        <!-- Écran principal -->
+        <section id="main-screen" class="screen">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2 id="patient-name">Jean Dupont</h2>
+                <div class="patient-id-badge" id="patient-id-badge">PA0001</div>
+                <p id="patient-info">Patient régulier</p>
+            </div>
+            
+            <div class="services-grid">
+                <div class="service-card" data-screen="results">
+                    <div class="service-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3>Résultats</h3>
+                    <p>Vos analyses</p>
+                </div>
+                
+                <div class="service-card" data-screen="appointments">
+                    <div class="service-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Rendez-vous</h3>
+                    <p>Gérer vos visites</p>
+                </div>
+                
+                <div class="service-card" data-screen="history">
+                    <div class="service-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Historique</h3>
+                    <p>Tous vos résultats</p>
+                </div>
+                
+                <div class="service-card" data-screen="messages">
+                    <div class="service-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Messages</h3>
+                    <p>Contacter le secrétariat</p>
+                </div>
+                
+                <div class="service-card" data-screen="print">
+                    <div class="service-icon">
+                        <i class="fas fa-print"></i>
+                    </div>
+                    <h3>Imprimer</h3>
+                    <p>Vos documents</p>
+                </div>
+                
+                <div class="service-card" data-screen="profile">
+                    <div class="service-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h3>Profil</h3>
+                    <p>Informations personnelles</p>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-title">
+                    <i class="fas fa-bell"></i>
+                    Notifications récentes
+                </div>
+                <div id="notifications-list"></div>
+            </div>
+        </section>
+
+        <!-- Écran des résultats -->
+        <section id="results-screen" class="screen">
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <button class="back-btn" style="background: none; border: none; font-size: 20px; color: #1a6bca; margin-right: 15px;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 style="color: #1a6bca;">Résultats d'analyses</h2>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-search"></i>
+                    Vérifier un résultat
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Code de l'analyse (optionnel)</label>
+                    <input type="text" id="analysis-code" class="form-control" placeholder="Ex: LAB-1234">
+                </div>
+                
+                <button class="btn" id="check-results-btn">
+                    <i class="fas fa-search"></i> Vérifier les résultats
+                </button>
+            </div>
+            
+            <div id="results-container"></div>
+        </section>
+
+        <!-- Écran rendez-vous -->
+        <section id="appointments-screen" class="screen">
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <button class="back-btn" style="background: none; border: none; font-size: 20px; color: #1a6bca; margin-right: 15px;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 style="color: #1a6bca;">Mes rendez-vous</h2>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    Prochain rendez-vous
+                </div>
+                
+                <div id="next-appointment-container">
+                    <!-- Rempli dynamiquement -->
+                </div>
+                
+                <div class="appointment-buttons">
+                    <button class="btn btn-warning btn-sm" id="absent-btn">
+                        <i class="fas fa-user-times"></i> Déclarer absent
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="modify-appointment-btn">
+                        <i class="fas fa-edit"></i> Demander modification
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-history"></i>
+                    Rendez-vous passés
+                </div>
+                
+                <div id="past-appointments-container"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Demander un nouveau rendez-vous
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Motif de la consultation</label>
+                    <select id="appointment-reason" class="form-control">
+                        <option value="">Choisir un motif</option>
+                        <option value="consultation">Consultation générale</option>
+                        <option value="followup">Suivi médical</option>
+                        <option value="analysis">Prise de sang/analyse</option>
+                        <option value="specialist">Spécialiste</option>
+                        <option value="other">Autre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Préférence de date</label>
+                    <input type="date" id="appointment-date" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Notes supplémentaires</label>
+                    <textarea id="appointment-notes" class="form-control" rows="3" placeholder="Indiquez toute information utile..."></textarea>
+                </div>
+                
+                <button class="btn btn-success" id="request-appointment-btn">
+                    <i class="fas fa-calendar-plus"></i> Demander un rendez-vous
+                </button>
+            </div>
+        </section>
+
+        <!-- Écran historique -->
+        <section id="history-screen" class="screen">
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <button class="back-btn" style="background: none; border: none; font-size: 20px; color: #1a6bca; margin-right: 15px;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 style="color: #1a6bca;">Historique des résultats</h2>
+            </div>
+            
+            <div id="history-container"></div>
+        </section>
+
+        <!-- Écran messages -->
+        <section id="messages-screen" class="screen">
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <button class="back-btn" style="background: none; border: none; font-size: 20px; color: #1a6bca; margin-right: 15px;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 style="color: #1a6bca;">Contact secrétariat</h2>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-envelope"></i>
+                    Envoyer un message
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Sujet</label>
+                    <select id="message-subject" class="form-control">
+                        <option value="">Choisir un sujet</option>
+                        <option value="rendez-vous">Demande de rendez-vous</option>
+                        <option value="resultats">Question sur les résultats</option>
+                        <option value="ordonnance">Demande d'ordonnance</option>
+                        <option value="modification-rdv">Modification de rendez-vous</option>
+                        <option value="urgence">Situation d'urgence</option>
+                        <option value="autre">Autre demande</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Votre message</label>
+                    <textarea id="message-content" class="form-control" rows="4" placeholder="Décrivez votre demande..."></textarea>
+                </div>
+                
+                <button class="btn btn-success" id="send-message-btn">
+                    <i class="fas fa-paper-plane"></i> Envoyer le message
+                </button>
+            </div>
+            
+            <div class="message-list" id="messages-list">
+                <h3 style="margin: 20px 0 15px 0; color: #555;">Messages précédents</h3>
+            </div>
+        </section>
+
+        <!-- Écran impression -->
+        <section id="print-screen" class="screen">
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <button class="back-btn" style="background: none; border: none; font-size: 20px; color: #1a6bca; margin-right: 15px;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 style="color: #1a6bca;">Imprimer des documents</h2>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-print"></i>
+                    Impression de résultats
+                </div>
+                
+                <p>Sélectionnez les documents à imprimer :</p>
+                
+                <div id="printable-documents"></div>
+                
+                <button class="btn" id="print-selected-btn">
+                    <i class="fas fa-print"></i> Imprimer la sélection
+                </button>
+            </div>
+        </section>
+
+        <!-- Écran profil -->
+        <section id="profile-screen" class="screen">
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <button class="back-btn" style="background: none; border: none; font-size: 20px; color: #1a6bca; margin-right: 15px;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 style="color: #1a6bca;">Mon profil</h2>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-user"></i>
+                    Informations personnelles
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nom complet</label>
+                    <input type="text" id="profile-name" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Numéro de dossier</label>
+                    <input type="text" id="profile-id" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Date de naissance</label>
+                    <input type="text" id="profile-dob" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Téléphone</label>
+                    <input type="text" id="profile-phone" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Type de patient</label>
+                    <input type="text" id="profile-type" class="form-control" readonly>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-title">
+                    <i class="fas fa-cog"></i>
+                    Paramètres
+                </div>
+                
+                <div style="padding: 10px 0;">
+                    <button class="btn btn-secondary" id="change-password-btn" style="margin-bottom: 10px;">
+                        <i class="fas fa-key"></i> Changer le mot de passe
+                    </button>
+                    
+                    <button class="btn" id="install-app-btn" style="margin-bottom: 10px;">
+                        <i class="fas fa-download"></i> Installer l'application
+                    </button>
+                    
+                    <button class="btn btn-secondary" id="clear-cache-btn">
+                        <i class="fas fa-trash"></i> Effacer le cache
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation mobile -->
+        <nav class="mobile-nav">
+            <a href="#" class="nav-item active" data-screen="main">
+                <i class="fas fa-home nav-icon"></i>
+                Accueil
+            </a>
+            <a href="#" class="nav-item" data-screen="results">
+                <i class="fas fa-flask nav-icon"></i>
+                Résultats
+            </a>
+            <a href="#" class="nav-item" data-screen="appointments">
+                <i class="fas fa-calendar-check nav-icon"></i>
+                RDV
+            </a>
+            <a href="#" class="nav-item" data-screen="messages">
+                <i class="fas fa-comments nav-icon"></i>
+                Messages
+            </a>
+            <a href="#" class="nav-item" data-screen="profile">
+                <i class="fas fa-user nav-icon"></i>
+                Profil
+            </a>
+        </nav>
+    </div>
+
+    <!-- Modal d'impression -->
+    <div class="print-modal" id="print-modal">
+        <div class="print-content">
+            <h3 style="color: #1a6bca; margin-bottom: 15px;">Impression</h3>
+            <div id="print-preview"></div>
+            <div class="print-actions">
+                <button class="btn btn-sm" onclick="window.print()">
+                    <i class="fas fa-print"></i> Imprimer
+                </button>
+                <button class="btn btn-secondary btn-sm" id="close-print-modal">
+                    <i class="fas fa-times"></i> Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prompt d'installation PWA -->
+    <div class="install-prompt" id="install-prompt">
+        <button class="close-install" id="close-install">
+            <i class="fas fa-times"></i>
+        </button>
+        <h3 style="margin-bottom: 10px; color: #1a6bca;">Installer l'application</h3>
+        <p style="margin-bottom: 15px;">Installez l'application sur votre téléphone pour un accès rapide.</p>
+        <div style="text-align: center; margin: 15px 0;">
+            <i class="fas fa-hospital" style="font-size: 48px; color: #1a6bca;"></i>
+        </div>
+        <button class="btn" id="install-app-confirm">
+            <i class="fas fa-download"></i> Installer maintenant
+        </button>
+    </div>
+
+    <!-- Service Worker et PWA -->
+    <script>
+        // Données de démo
+        const demoData = {
+            patients: {
+                'PA0001': {
+                    name: 'Jean Dupont',
+                    dob: '1980-01-01',
+                    phone: '1234-5678',
+                    type: 'Patient régulier'
+                },
+                'URG0002': {
+                    name: 'Marie Curie',
+                    dob: '1990-05-05',
+                    phone: '8765-4321',
+                    type: 'Urgence'
+                }
+            },
+            
+            appointments: {
+                'PA0001': [
+                    {
+                        id: 'RDV-2024-001',
+                        date: '2024-02-15',
+                        time: '14:30',
+                        doctor: 'Dr. Martin',
+                        department: 'Médecine générale',
+                        reason: 'Consultation de suivi',
+                        status: 'confirmé'
+                    },
+                    {
+                        id: 'RDV-2024-002',
+                        date: '2024-01-20',
+                        time: '10:00',
+                        doctor: 'Dr. Lambert',
+                        department: 'Cardiologie',
+                        reason: 'Consultation spécialiste',
+                        status: 'terminé'
+                    }
+                ],
+                'URG0002': [
+                    {
+                        id: 'RDV-2024-003',
+                        date: '2024-02-10',
+                        time: '09:15',
+                        doctor: 'Dr. Rousseau',
+                        department: 'Urgence',
+                        reason: 'Suivi post-urgence',
+                        status: 'confirmé'
+                    }
+                ]
+            },
+            
+            analyses: {
+                'PA0001': [
+                    {
+                        id: 'LAB-2024-001',
+                        type: 'Hémogramme complet',
+                        date: '2024-01-15',
+                        status: 'ready',
+                        hasImage: true,
+                        imageUrl: 'https://via.placeholder.com/400x300/1a6bca/ffffff?text=R%C3%A9sultat+Analyse',
+                        results: `Hémoglobine: 14.2 g/dL (Normal: 13.5-17.5)
+Hématocrite: 42% (Normal: 40-52%)
+Leucocytes: 7.2 x10³/μL (Normal: 4.0-11.0)
+Plaquettes: 250 x10³/μL (Normal: 150-450)
+Lymphocytes: 25% (Normal: 20-40%)
+Conclusion: Résultats dans les limites de la normale.`
+                    },
+                    {
+                        id: 'LAB-2024-002',
+                        type: 'Glycémie à jeun',
+                        date: '2024-01-15',
+                        status: 'ready',
+                        hasImage: false,
+                        results: `Glycémie: 95 mg/dL (Normal: 70-100 mg/dL)
+Conclusion: Valeur normale.`
+                    },
+                    {
+                        id: 'LAB-2024-003',
+                        type: 'Test COVID-19',
+                        date: '2024-01-20',
+                        status: 'pending',
+                        hasImage: false,
+                        results: 'Analyse en cours de traitement. Résultats disponibles dans 24-48 heures.'
+                    }
+                ],
+                'URG0002': [
+                    {
+                        id: 'LAB-2024-004',
+                        type: 'Radiographie thoracique',
+                        date: '2024-01-18',
+                        status: 'ready',
+                        hasImage: true,
+                        imageUrl: 'https://via.placeholder.com/400x300/0d4d9c/ffffff?text=Radiographie+Thoracique',
+                        results: `Poumons: Clair sans foyer infectieux visible.
+Cœur: Silhouette cardiaque normale.
+Conclusion: Radiographie normale.`
+                    }
+                ]
+            },
+            
+            messages: {
+                'PA0001': [
+                    {
+                        id: 1,
+                        subject: 'rendez-vous',
+                        content: 'Je souhaite prendre un rendez-vous pour un suivi.',
+                        date: '2024-01-16 10:30',
+                        status: 'répondu',
+                        response: 'Votre rendez-vous est fixé au 25/01/2024 à 14h00.'
+                    },
+                    {
+                        id: 2,
+                        subject: 'ordonnance',
+                        content: 'Puis-je avoir une copie de mon ordonnance ?',
+                        date: '2024-01-17 15:45',
+                        status: 'en attente'
+                    }
+                ]
+            }
+        };
+
+        // État de l'application
+        const appState = {
+            currentPatient: null,
+            currentScreen: 'login',
+            deferredPrompt: null
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+            setupEventListeners();
+            checkLocalStorage();
+            
+            // Service Worker pour PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker enregistré'))
+                    .catch(err => console.log('Échec Service Worker:', err));
+            }
+            
+            // Gestion de l'installation PWA
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                appState.deferredPrompt = e;
+                setTimeout(() => {
+                    if (!localStorage.getItem('appInstalled')) {
+                        document.getElementById('install-prompt').classList.add('active');
+                    }
+                }, 5000);
+            });
+            
+            window.addEventListener('appinstalled', () => {
+                localStorage.setItem('appInstalled', 'true');
+                document.getElementById('install-prompt').classList.remove('active');
+                showMessage('Application installée avec succès !', 'success');
+            });
+        });
+
+        function initApp() {
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const screen = this.dataset.screen;
+                    if (screen === 'main' && !appState.currentPatient) {
+                        showMessage('Veuillez vous connecter d\'abord', 'error');
+                        return;
+                    }
+                    showScreen(screen);
+                    
+                    // Mettre à jour la navigation active
+                    document.querySelectorAll('.nav-item').forEach(nav => {
+                        nav.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+            
+            // Boutons retour
+            document.querySelectorAll('.back-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showScreen('main');
+                    document.querySelector('.nav-item[data-screen="main"]').classList.add('active');
+                    document.querySelectorAll('.nav-item').forEach(nav => {
+                        if (nav.dataset.screen !== 'main') nav.classList.remove('active');
+                    });
+                });
+            });
+            
+            // Service cards
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const screen = this.dataset.screen;
+                    showScreen(screen);
+                    
+                    // Mettre à jour la navigation
+                    document.querySelectorAll('.nav-item').forEach(nav => {
+                        nav.classList.remove('active');
+                        if (nav.dataset.screen === screen) {
+                            nav.classList.add('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        function setupEventListeners() {
+            // Connexion
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('demo-btn').addEventListener('click', function() {
+                document.getElementById('patient-id').value = 'PA0001';
+            });
+            
+            // Déconnexion
+            document.getElementById('logout-btn').addEventListener('click', logout);
+            
+            // Vérification des résultats
+            document.getElementById('check-results-btn').addEventListener('click', checkResults);
+            
+            // Rendez-vous
+            document.getElementById('absent-btn').addEventListener('click', declareAbsent);
+            document.getElementById('modify-appointment-btn').addEventListener('click', modifyAppointment);
+            document.getElementById('request-appointment-btn').addEventListener('click', requestAppointment);
+            
+            // Envoi de message
+            document.getElementById('send-message-btn').addEventListener('click', sendMessage);
+            
+            // Impression
+            document.getElementById('print-selected-btn').addEventListener('click', printSelectedDocuments);
+            document.getElementById('close-print-modal').addEventListener('click', function() {
+                document.getElementById('print-modal').classList.remove('active');
+            });
+            
+            // Installation PWA
+            document.getElementById('install-app-btn').addEventListener('click', showInstallPrompt);
+            document.getElementById('install-app-confirm').addEventListener('click', installApp);
+            document.getElementById('close-install').addEventListener('click', function() {
+                document.getElementById('install-prompt').classList.remove('active');
+            });
+            
+            // Autres boutons
+            document.getElementById('change-password-btn').addEventListener('click', changePassword);
+            document.getElementById('clear-cache-btn').addEventListener('click', clearCache);
+        }
+
+        function checkLocalStorage() {
+            const savedPatient = localStorage.getItem('currentPatient');
+            if (savedPatient) {
+                try {
+                    appState.currentPatient = JSON.parse(savedPatient);
+                    showScreen('main');
+                    updatePatientInfo();
+                    loadNotifications();
+                } catch (e) {
+                    localStorage.removeItem('currentPatient');
+                }
+            }
+        }
+
+        function login() {
+            const patientId = document.getElementById('patient-id').value.trim().toUpperCase();
+            
+            if (!patientId) {
+                showMessage('Veuillez entrer votre numéro de dossier', 'error', 'login-message');
+                return;
+            }
+            
+            // Simulation de chargement
+            showLoading('login-message', 'Vérification en cours...');
+            
+            setTimeout(() => {
+                const patient = demoData.patients[patientId];
+                
+                if (patient) {
+                    appState.currentPatient = {
+                        id: patientId,
+                        ...patient
+                    };
+                    
+                    // Sauvegarder en localStorage
+                    localStorage.setItem('currentPatient', JSON.stringify(appState.currentPatient));
+                    
+                    // Mettre à jour l'interface
+                    updatePatientInfo();
+                    showScreen('main');
+                    loadNotifications();
+                    
+                    showMessage(`Bienvenue ${patient.name} !`, 'success', 'login-message');
+                } else {
+                    showMessage('Numéro de dossier incorrect. Veuillez vérifier votre identifiant.', 'error', 'login-message');
+                }
+            }, 1000);
+        }
+
+        function logout() {
+            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                appState.currentPatient = null;
+                localStorage.removeItem('currentPatient');
+                showScreen('login');
+                document.getElementById('login-message').innerHTML = '';
+                document.getElementById('patient-id').value = '';
+            }
+        }
+
+        function showScreen(screenName) {
+            // Cacher tous les écrans
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Afficher l'écran demandé
+            document.getElementById(screenName + '-screen').classList.add('active');
+            appState.currentScreen = screenName;
+            
+            // Charger les données si nécessaire
+            switch(screenName) {
+                case 'main':
+                    loadNotifications();
+                    break;
+                case 'results':
+                    document.getElementById('analysis-code').value = '';
+                    document.getElementById('results-container').innerHTML = '';
+                    break;
+                case 'appointments':
+                    loadAppointments();
+                    break;
+                case 'history':
+                    loadHistory();
+                    break;
+                case 'messages':
+                    loadMessages();
+                    break;
+                case 'print':
+                    loadPrintableDocuments();
+                    break;
+                case 'profile':
+                    updateProfile();
+                    break;
+            }
+        }
+
+        function updatePatientInfo() {
+            if (!appState.currentPatient) return;
+            
+            const patient = appState.currentPatient;
+            document.getElementById('patient-name').textContent = patient.name;
+            document.getElementById('patient-id-badge').textContent = patient.id;
+            document.getElementById('patient-info').textContent = patient.type;
+        }
+
+        function updateProfile() {
+            if (!appState.currentPatient) return;
+            
+            const patient = appState.currentPatient;
+            document.getElementById('profile-name').value = patient.name;
+            document.getElementById('profile-id').value = patient.id;
+            document.getElementById('profile-dob').value = formatDate(patient.dob);
+            document.getElementById('profile-phone').value = patient.phone;
+            document.getElementById('profile-type').value = patient.type;
+        }
+
+        function checkResults() {
+            const patientId = appState.currentPatient.id;
+            const analysisCode = document.getElementById('analysis-code').value.trim();
+            const analyses = demoData.analyses[patientId] || [];
+            
+            let html = '<div class="card-title"><i class="fas fa-chart-line"></i> Résultats disponibles</div>';
+            
+            if (analyses.length === 0) {
+                html += '<div class="message info">Aucune analyse trouvée pour votre dossier.</div>';
+            } else {
+                let filteredAnalyses = analyses;
+                if (analysisCode) {
+                    filteredAnalyses = analyses.filter(a => 
+                        a.id.toLowerCase().includes(analysisCode.toLowerCase())
+                    );
+                }
+                
+                if (filteredAnalyses.length === 0) {
+                    html += `<div class="message warning">Aucune analyse ne correspond au code "${analysisCode}".</div>`;
+                } else {
+                    filteredAnalyses.forEach(analysis => {
+                        html += `
+                            <div class="result-item">
+                                <div class="result-header">
+                                    <div>
+                                        <div class="result-type">${analysis.type}</div>
+                                        <div class="result-date">${formatDate(analysis.date)}</div>
+                                    </div>
+                                    <div>
+                                        <span class="result-status ${analysis.status === 'ready' ? 'status-ready' : 'status-pending'}">
+                                            ${analysis.status === 'ready' ? 'Disponible' : 'En attente'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="result-content">
+                                    ${analysis.results.replace(/\n/g, '<br>')}
+                                </div>
+                                ${analysis.hasImage ? 
+                                    `<div style="margin-top: 15px;">
+                                        <img src="${analysis.imageUrl}" alt="Résultat d'analyse" class="result-image">
+                                        <div style="text-align: center; margin-top: 10px;">
+                                            <button class="btn btn-sm" onclick="printImage('${analysis.id}')">
+                                                <i class="fas fa-print"></i> Imprimer cette image
+                                            </button>
+                                        </div>
+                                    </div>` : ''
+                                }
+                                <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                                    Code: ${analysis.id}
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <button class="btn btn-sm" onclick="printAnalysis('${analysis.id}')">
+                                        <i class="fas fa-print"></i> Imprimer ce résultat
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+            
+            document.getElementById('results-container').innerHTML = html;
+        }
+
+        function loadAppointments() {
+            const patientId = appState.currentPatient.id;
+            const appointments = demoData.appointments[patientId] || [];
+            
+            // Prochain rendez-vous
+            const upcoming = appointments.filter(a => a.status === 'confirmé');
+            let nextHtml = '';
+            
+            if (upcoming.length === 0) {
+                nextHtml = '<div class="message info">Aucun rendez-vous à venir.</div>';
+            } else {
+                upcoming.forEach(appointment => {
+                    nextHtml += `
+                        <div class="appointment-card">
+                            <div class="appointment-title">${appointment.department}</div>
+                            <div class="appointment-details">
+                                <strong>Date:</strong> ${formatDate(appointment.date)} à ${appointment.time}<br>
+                                <strong>Docteur:</strong> ${appointment.doctor}<br>
+                                <strong>Motif:</strong> ${appointment.reason}<br>
+                                <strong>Statut:</strong> <span style="color: #28a745;">${appointment.status}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('next-appointment-container').innerHTML = nextHtml;
+            
+            // Rendez-vous passés
+            const past = appointments.filter(a => a.status === 'terminé');
+            let pastHtml = '';
+            
+            if (past.length === 0) {
+                pastHtml = '<div class="message info">Aucun rendez-vous passé.</div>';
+            } else {
+                past.forEach(appointment => {
+                    pastHtml += `
+                        <div class="appointment-card">
+                            <div class="appointment-details">
+                                <strong>Date:</strong> ${formatDate(appointment.date)} à ${appointment.time}<br>
+                                <strong>Docteur:</strong> ${appointment.doctor}<br>
+                                <strong>Service:</strong> ${appointment.department}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('past-appointments-container').innerHTML = pastHtml;
+        }
+
+        function declareAbsent() {
+            if (confirm('Confirmez-vous votre absence au prochain rendez-vous ?')) {
+                showMessage('Absence déclarée. Le secrétariat vous contactera pour reprogrammer.', 'warning');
+                
+                // Envoyer un message automatique au secrétariat
+                const patientId = appState.currentPatient.id;
+                if (!demoData.messages[patientId]) {
+                    demoData.messages[patientId] = [];
+                }
+                
+                demoData.messages[patientId].push({
+                    id: Date.now(),
+                    subject: 'modification-rdv',
+                    content: 'Je déclare mon absence au prochain rendez-vous. Merci de me recontacter pour une nouvelle date.',
+                    date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    status: 'en attente'
+                });
+                
+                loadNotifications();
+            }
+        }
+
+        function modifyAppointment() {
+            const newDate = prompt('Entrez la date souhaitée pour votre rendez-vous (format: JJ/MM/AAAA) :');
+            const newTime = prompt('Entrez l\'heure souhaitée (format: HH:MM) :');
+            
+            if (newDate && newTime) {
+                showMessage('Demande de modification envoyée. Le secrétariat vous confirmera la nouvelle date.', 'success');
+                
+                // Envoyer un message automatique au secrétariat
+                const patientId = appState.currentPatient.id;
+                if (!demoData.messages[patientId]) {
+                    demoData.messages[patientId] = [];
+                }
+                
+                demoData.messages[patientId].push({
+                    id: Date.now(),
+                    subject: 'modification-rdv',
+                    content: `Je souhaite modifier mon rendez-vous. Date souhaitée: ${newDate} à ${newTime}.`,
+                    date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    status: 'en attente'
+                });
+            }
+        }
+
+        function requestAppointment() {
+            const reason = document.getElementById('appointment-reason').value;
+            const date = document.getElementById('appointment-date').value;
+            const notes = document.getElementById('appointment-notes').value.trim();
+            
+            if (!reason) {
+                showMessage('Veuillez sélectionner un motif de consultation', 'error');
+                return;
+            }
+            
+            // Simulation de demande
+            const reasonMap = {
+                'consultation': 'Consultation générale',
+                'followup': 'Suivi médical',
+                'analysis': 'Prise de sang/analyse',
+                'specialist': 'Spécialiste',
+                'other': 'Autre'
+            };
+            
+            showMessage('Demande de rendez-vous envoyée. Le secrétariat vous contactera pour confirmation.', 'success');
+            
+            // Envoyer un message automatique au secrétariat
+            const patientId = appState.currentPatient.id;
+            if (!demoData.messages[patientId]) {
+                demoData.messages[patientId] = [];
+            }
+            
+            demoData.messages[patientId].push({
+                id: Date.now(),
+                subject: 'rendez-vous',
+                content: `Demande de rendez-vous pour: ${reasonMap[reason]}.
+Date préférée: ${date || 'Non spécifiée'}
+Notes: ${notes || 'Aucune'}`,
+                date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                status: 'en attente'
+            });
+            
+            // Réinitialiser le formulaire
+            document.getElementById('appointment-reason').value = '';
+            document.getElementById('appointment-date').value = '';
+            document.getElementById('appointment-notes').value = '';
+            
+            loadNotifications();
+        }
+
+        function loadHistory() {
+            const patientId = appState.currentPatient.id;
+            const analyses = demoData.analyses[patientId] || [];
+            
+            let html = '';
+            
+            if (analyses.length === 0) {
+                html = '<div class="message info">Aucun historique disponible.</div>';
+            } else {
+                // Grouper par date
+                const groupedByDate = {};
+                analyses.forEach(analysis => {
+                    if (!groupedByDate[analysis.date]) {
+                        groupedByDate[analysis.date] = [];
+                    }
+                    groupedByDate[analysis.date].push(analysis);
+                });
+                
+                // Afficher par date
+                Object.keys(groupedByDate).sort().reverse().forEach(date => {
+                    html += `
+                        <div class="card" style="margin-bottom: 20px;">
+                            <div class="card-title">
+                                <i class="fas fa-calendar-day"></i>
+                                ${formatDate(date)}
+                            </div>
+                    `;
+                    
+                    groupedByDate[date].forEach(analysis => {
+                        html += `
+                            <div class="result-item" style="margin-bottom: 10px;">
+                                <div class="result-header">
+                                    <div class="result-type">${analysis.type}</div>
+                                    <span class="result-status ${analysis.status === 'ready' ? 'status-ready' : 'status-pending'}">
+                                        ${analysis.status === 'ready' ? 'Terminé' : 'En cours'}
+                                    </span>
+                                </div>
+                                <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                                    Code: ${analysis.id}
+                                </div>
+                                ${analysis.status === 'ready' ? 
+                                    `<div style="margin-top: 10px;">
+                                        <button class="btn btn-secondary btn-sm" onclick="viewAnalysis('${analysis.id}')">
+                                            <i class="fas fa-eye"></i> Voir le résultat
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm" onclick="printAnalysis('${analysis.id}')">
+                                            <i class="fas fa-print"></i> Imprimer
+                                        </button>
+                                    </div>` : ''
+                                }
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                });
+            }
+            
+            document.getElementById('history-container').innerHTML = html;
+        }
+
+        function viewAnalysis(analysisId) {
+            const patientId = appState.currentPatient.id;
+            const analyses = demoData.analyses[patientId] || [];
+            const analysis = analyses.find(a => a.id === analysisId);
+            
+            if (analysis) {
+                let html = `
+                    <div class="card">
+                        <div class="card-title">
+                            <i class="fas fa-file-medical"></i>
+                            ${analysis.type}
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Date:</strong> ${formatDate(analysis.date)}<br>
+                            <strong>Code:</strong> ${analysis.id}
+                        </div>
+                        <div class="result-content">
+                            ${analysis.results.replace(/\n/g, '<br>')}
+                        </div>
+                        ${analysis.hasImage ? 
+                            `<div style="margin-top: 15px;">
+                                <img src="${analysis.imageUrl}" alt="Résultat d'analyse" class="result-image">
+                            </div>` : ''
+                        }
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-secondary" onclick="printAnalysis('${analysisId}')">
+                                <i class="fas fa-print"></i> Imprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('history-container').innerHTML = html;
+            }
+        }
+
+        function loadMessages() {
+            const patientId = appState.currentPatient.id;
+            const messages = demoData.messages[patientId] || [];
+            
+            let html = '';
+            
+            if (messages.length === 0) {
+                html = '<div class="message info">Aucun message envoyé.</div>';
+            } else {
+                messages.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(msg => {
+                    const subjectMap = {
+                        'rendez-vous': 'Demande de rendez-vous',
+                        'resultats': 'Question sur les résultats',
+                        'ordonnance': 'Demande d\'ordonnance',
+                        'modification-rdv': 'Modification de rendez-vous',
+                        'urgence': 'Situation d\'urgence',
+                        'autre': 'Autre demande'
+                    };
+                    
+                    html += `
+                        <div class="message-item">
+                            <div class="message-meta">
+                                <span>${formatDateTime(msg.date)}</span>
+                                <span class="message-status">${msg.status}</span>
+                            </div>
+                            <div>
+                                <strong>${subjectMap[msg.subject] || msg.subject}</strong>
+                            </div>
+                            <div class="message-text">
+                                ${msg.content}
+                            </div>
+                            ${msg.response ? `
+                                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #1a6bca;">
+                                    <strong>Réponse du secrétariat:</strong><br>
+                                    ${msg.response}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('messages-list').innerHTML = html;
+        }
+
+        function sendMessage() {
+            const subject = document.getElementById('message-subject').value;
+            const content = document.getElementById('message-content').value.trim();
+            
+            if (!subject || !content) {
+                showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            // Simulation d'envoi
+            const message = {
+                id: Date.now(),
+                subject: subject,
+                content: content,
+                date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                status: 'en attente'
+            };
+            
+            // Ajouter aux messages de démo
+            const patientId = appState.currentPatient.id;
+            if (!demoData.messages[patientId]) {
+                demoData.messages[patientId] = [];
+            }
+            demoData.messages[patientId].push(message);
+            
+            // Réinitialiser le formulaire
+            document.getElementById('message-subject').value = '';
+            document.getElementById('message-content').value = '';
+            
+            // Recharger les messages
+            loadMessages();
+            
+            showMessage('Message envoyé avec succès. Vous recevrez une réponse dans les 24 heures.', 'success');
+            
+            // Ajouter une notification
+            addNotification('Message envoyé au secrétariat', 'Votre demande a été transmise.');
+        }
+
+        function loadPrintableDocuments() {
+            const patientId = appState.currentPatient.id;
+            const analyses = demoData.analyses[patientId] || [];
+            const readyAnalyses = analyses.filter(a => a.status === 'ready');
+            
+            let html = '';
+            
+            if (readyAnalyses.length === 0) {
+                html = '<div class="message info">Aucun document disponible pour impression.</div>';
+            } else {
+                readyAnalyses.forEach(analysis => {
+                    html += `
+                        <div style="margin-bottom: 15px; padding: 15px; border: 1px solid #eef5ff; border-radius: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <strong>${analysis.type}</strong><br>
+                                    <small>${formatDate(analysis.date)} - Code: ${analysis.id}</small>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="print-${analysis.id}" class="print-checkbox" checked>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                    <div style="margin-top: 20px; padding: 15px; border: 1px solid #eef5ff; border-radius: 8px; background: #f8f9fa;">
+                        <strong>Options d'impression :</strong>
+                        <div style="margin-top: 10px;">
+                            <label style="display: block; margin-bottom: 8px;">
+                                <input type="checkbox" id="print-header" checked> Inclure l'en-tête de l'hôpital
+                            </label>
+                            <label style="display: block; margin-bottom: 8px;">
+                                <input type="checkbox" id="print-patient-info" checked> Inclure les informations patient
+                            </label>
+                            <label style="display: block;">
+                                <input type="checkbox" id="print-date" checked> Inclure la date d'impression
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('printable-documents').innerHTML = html;
+        }
+
+        function printSelectedDocuments() {
+            const patientId = appState.currentPatient.id;
+            const analyses = demoData.analyses[patientId] || [];
+            const readyAnalyses = analyses.filter(a => a.status === 'ready');
+            
+            let printHtml = `
+                <div style="font-family: Arial, sans-serif; padding: 20px;">
+                    <div style="text-align: center; border-bottom: 2px solid #1a6bca; padding-bottom: 15px; margin-bottom: 20px;">
+                        <h1 style="color: #1a6bca; margin-bottom: 5px;">Hôpital Saint-Luc</h1>
+                        <p style="color: #666;">Service des résultats médicaux</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                        <h3>Informations patient</h3>
+                        <p><strong>Nom:</strong> ${appState.currentPatient.name}</p>
+                        <p><strong>Numéro de dossier:</strong> ${appState.currentPatient.id}</p>
+                        <p><strong>Date de naissance:</strong> ${formatDate(appState.currentPatient.dob)}</p>
+                        <p><strong>Date d'impression:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+                    </div>
+            `;
+            
+            readyAnalyses.forEach(analysis => {
+                const checkbox = document.getElementById(`print-${analysis.id}`);
+                if (checkbox && checkbox.checked) {
+                    printHtml += `
+                        <div style="page-break-inside: avoid; margin-bottom: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
+                            <h2 style="color: #1a6bca; border-bottom: 1px solid #eee; padding-bottom: 10px;">${analysis.type}</h2>
+                            <p><strong>Date de l'analyse:</strong> ${formatDate(analysis.date)}</p>
+                            <p><strong>Code de l'analyse:</strong> ${analysis.id}</p>
+                            
+                            <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                                <h4>Résultats :</h4>
+                                <pre style="white-space: pre-wrap; font-family: monospace;">${analysis.results}</pre>
+                            </div>
+                    `;
+                    
+                    if (analysis.hasImage) {
+                        printHtml += `
+                            <div style="margin-top: 15px; text-align: center;">
+                                <h4>Image médicale :</h4>
+                                <div style="border: 1px solid #ddd; padding: 10px; display: inline-block; margin-top: 10px;">
+                                    [Image médicale - Référence: ${analysis.id}]
+                                </div>
+                                <p style="font-size: 12px; color: #666; margin-top: 5px;">L'image originale est disponible dans votre dossier médical électronique.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    printHtml += `
+                            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ddd; font-size: 12px; color: #666;">
+                                <p>Document imprimé le ${new Date().toLocaleString('fr-FR')}</p>
+                                <p>Hôpital Saint-Luc - Tous droits réservés</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            printHtml += `
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #1a6bca; text-align: center; color: #666; font-size: 12px;">
+                        <p>Ce document a une valeur médicale. Conservez-le avec vos autres documents de santé.</p>
+                        <p>Hôpital Saint-Luc - 123 Avenue de la Santé, 75000 Paris - Tél: 01 23 45 67 89</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('print-preview').innerHTML = printHtml;
+            document.getElementById('print-modal').classList.add('active');
+        }
+
+        function printAnalysis(analysisId) {
+            const patientId = appState.currentPatient.id;
+            const analyses = demoData.analyses[patientId] || [];
+            const analysis = analyses.find(a => a.id === analysisId);
+            
+            if (analysis) {
+                let printHtml = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px;">
+                        <div style="text-align: center; border-bottom: 2px solid #1a6bca; padding-bottom: 15px; margin-bottom: 20px;">
+                            <h1 style="color: #1a6bca; margin-bottom: 5px;">Hôpital Saint-Luc</h1>
+                            <p style="color: #666;">Service des résultats médicaux</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                            <h3>Informations patient</h3>
+                            <p><strong>Nom:</strong> ${appState.currentPatient.name}</p>
+                            <p><strong>Numéro de dossier:</strong> ${appState.currentPatient.id}</p>
+                            <p><strong>Date de naissance:</strong> ${formatDate(appState.currentPatient.dob)}</p>
+                            <p><strong>Date d'impression:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+                        </div>
+                        
+                        <div style="page-break-inside: avoid; margin-bottom: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
+                            <h2 style="color: #1a6bca; border-bottom: 1px solid #eee; padding-bottom: 10px;">${analysis.type}</h2>
+                            <p><strong>Date de l'analyse:</strong> ${formatDate(analysis.date)}</p>
+                            <p><strong>Code de l'analyse:</strong> ${analysis.id}</p>
+                            
+                            <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                                <h4>Résultats :</h4>
+                                <pre style="white-space: pre-wrap; font-family: monospace;">${analysis.results}</pre>
+                            </div>
+                `;
+                
+                if (analysis.hasImage) {
+                    printHtml += `
+                        <div style="margin-top: 15px; text-align: center;">
+                            <h4>Image médicale :</h4>
+                            <div style="border: 1px solid #ddd; padding: 10px; display: inline-block; margin-top: 10px;">
+                                [Image médicale - Référence: ${analysis.id}]
+                            </div>
+                            <p style="font-size: 12px; color: #666; margin-top: 5px;">L'image originale est disponible dans votre dossier médical électronique.</p>
+                        </div>
+                    `;
+                }
+                
+                printHtml += `
+                            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ddd; font-size: 12px; color: #666;">
+                                <p>Document imprimé le ${new Date().toLocaleString('fr-FR')}</p>
+                                <p>Hôpital Saint-Luc - Tous droits réservés</p>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #1a6bca; text-align: center; color: #666; font-size: 12px;">
+                            <p>Ce document a une valeur médicale. Conservez-le avec vos autres documents de santé.</p>
+                            <p>Hôpital Saint-Luc - 123 Avenue de la Santé, 75000 Paris - Tél: 01 23 45 67 89</p>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('print-preview').innerHTML = printHtml;
+                document.getElementById('print-modal').classList.add('active');
+            }
+        }
+
+        function printImage(analysisId) {
+            const patientId = appState.currentPatient.id;
+            const analyses = demoData.analyses[patientId] || [];
+            const analysis = analyses.find(a => a.id === analysisId);
+            
+            if (analysis && analysis.hasImage) {
+                let printHtml = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px;">
+                        <div style="text-align: center; border-bottom: 2px solid #1a6bca; padding-bottom: 15px; margin-bottom: 20px;">
+                            <h1 style="color: #1a6bca; margin-bottom: 5px;">Hôpital Saint-Luc</h1>
+                            <p style="color: #666;">Service d'imagerie médicale</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                            <h3>Informations patient</h3>
+                            <p><strong>Nom:</strong> ${appState.currentPatient.name}</p>
+                            <p><strong>Numéro de dossier:</strong> ${appState.currentPatient.id}</p>
+                            <p><strong>Date de naissance:</strong> ${formatDate(appState.currentPatient.dob)}</p>
+                            <p><strong>Date d'examen:</strong> ${formatDate(analysis.date)}</p>
+                        </div>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <h3 style="color: #1a6bca; margin-bottom: 20px;">${analysis.type}</h3>
+                            <div style="border: 2px solid #ddd; padding: 20px; display: inline-block; background: #f8f9fa;">
+                                <div style="width: 400px; height: 300px; background: linear-gradient(135deg, #1a6bca 0%, #0d4d9c 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                                    IMAGE MÉDICALE<br>${analysis.id}
+                                </div>
+                            </div>
+                            <p style="margin-top: 15px; font-size: 14px; color: #666;">Référence: ${analysis.id}</p>
+                        </div>
+                        
+                        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+                            <h4>Commentaires :</h4>
+                            <pre style="white-space: pre-wrap; font-family: monospace;">${analysis.results}</pre>
+                        </div>
+                        
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #1a6bca; text-align: center; color: #666; font-size: 12px;">
+                            <p>Document imprimé le ${new Date().toLocaleString('fr-FR')}</p>
+                            <p>Hôpital Saint-Luc - Service d'imagerie médicale</p>
+                            <p>123 Avenue de la Santé, 75000 Paris - Tél: 01 23 45 67 89</p>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('print-preview').innerHTML = printHtml;
+                document.getElementById('print-modal').classList.add('active');
+            }
+        }
+
+        function loadNotifications() {
+            const patientId = appState.currentPatient.id;
+            const analyses = demoData.analyses[patientId] || [];
+            const pendingAnalyses = analyses.filter(a => a.status === 'pending');
+            
+            let html = '';
+            
+            if (pendingAnalyses.length > 0) {
+                html += `
+                    <div class="message warning">
+                        <strong><i class="fas fa-clock"></i> Analyses en attente</strong><br>
+                        Vous avez ${pendingAnalyses.length} analyse(s) dont les résultats ne sont pas encore disponibles.
+                    </div>
+                `;
+            }
+            
+            // Vérifier si des résultats sont disponibles
+            const newResults = analyses.filter(a => {
+                if (a.status !== 'ready') return false;
+                // Vérifier si le résultat est récent (moins de 7 jours)
+                const resultDate = new Date(a.date);
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return resultDate > weekAgo;
+            });
+            
+            if (newResults.length > 0) {
+                html += `
+                    <div class="message success">
+                        <strong><i class="fas fa-check-circle"></i> Nouveaux résultats</strong><br>
+                        Vous avez ${newResults.length} nouveau(x) résultat(s) disponible(s).
+                    </div>
+                `;
+            }
+            
+            // Vérifier les rendez-vous à venir
+            const appointments = demoData.appointments[patientId] || [];
+            const upcomingAppointments = appointments.filter(a => a.status === 'confirmé');
+            
+            if (upcomingAppointments.length > 0) {
+                const nextAppointment = upcomingAppointments[0];
+                html += `
+                    <div class="message info">
+                        <strong><i class="fas fa-calendar-alt"></i> Prochain rendez-vous</strong><br>
+                        Vous avez un rendez-vous le ${formatDate(nextAppointment.date)} à ${nextAppointment.time} avec ${nextAppointment.doctor}.
+                    </div>
+                `;
+            }
+            
+            if (!html) {
+                html = '<div class="message info">Aucune notification pour le moment.</div>';
+            }
+            
+            document.getElementById('notifications-list').innerHTML = html;
+        }
+
+        function addNotification(title, message) {
+            const notifications = document.getElementById('notifications-list');
+            const notification = document.createElement('div');
+            notification.className = 'message success';
+            notification.innerHTML = `<strong>${title}</strong><br>${message}`;
+            
+            notifications.insertBefore(notification, notifications.firstChild);
+        }
+
+        function showInstallPrompt() {
+            if (appState.deferredPrompt) {
+                document.getElementById('install-prompt').classList.add('active');
+            } else {
+                showMessage('L\'application est déjà installée ou ne supporte pas l\'installation.', 'info');
+            }
+        }
+
+        function installApp() {
+            if (appState.deferredPrompt) {
+                appState.deferredPrompt.prompt();
+                appState.deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        localStorage.setItem('appInstalled', 'true');
+                        showMessage('Application installée avec succès !', 'success');
+                    }
+                    appState.deferredPrompt = null;
+                    document.getElementById('install-prompt').classList.remove('active');
+                });
+            } else {
+                showMessage('Pour installer l\'application, utilisez l\'option "Ajouter à l\'écran d\'accueil" dans le menu de votre navigateur.', 'info');
+            }
+        }
+
+        function changePassword() {
+            const newPassword = prompt('Pour des raisons de sécurité, veuillez contacter le secrétariat pour changer votre mot de passe :\nTéléphone: (509) 1234-5678');
+            if (newPassword) {
+                showMessage('Demande de changement de mot de passe enregistrée. Le secrétariat vous contactera.', 'success');
+            }
+        }
+
+        function clearCache() {
+            if (confirm('Voulez-vous effacer toutes les données locales ? Cette action vous déconnectera.')) {
+                localStorage.clear();
+                showMessage('Cache effacé. L\'application va se recharger.', 'success');
+                setTimeout(() => location.reload(), 2000);
+            }
+        }
+
+        function showMessage(text, type, elementId = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = text;
+            
+            if (elementId) {
+                const container = document.getElementById(elementId);
+                container.innerHTML = '';
+                container.appendChild(messageDiv);
+            } else {
+                // Afficher temporairement en haut
+                messageDiv.style.position = 'fixed';
+                messageDiv.style.top = '80px';
+                messageDiv.style.left = '20px';
+                messageDiv.style.right = '20px';
+                messageDiv.style.zIndex = '1001';
+                messageDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                
+                document.body.appendChild(messageDiv);
+                
+                setTimeout(() => {
+                    messageDiv.style.opacity = '0';
+                    messageDiv.style.transform = 'translateY(-10px)';
+                    setTimeout(() => document.body.removeChild(messageDiv), 300);
+                }, 3000);
+            }
+        }
+
+        function showLoading(elementId, text = 'Chargement...') {
+            const container = document.getElementById(elementId);
+            container.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="spinner"></div>
+                    <div>${text}</div>
+                </div>
+            `;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR');
+        }
+
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString.replace(' ', 'T'));
+            return date.toLocaleString('fr-FR');
+        }
+    </script>
+
+    <!-- Service Worker pour PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker enregistré avec succès:', registration);
+                })
+                .catch(error => {
+                    console.log('Échec de l\'enregistrement du Service Worker:', error);
+                });
+        }
+    </script>
+</body>
+</html>
