@@ -501,15 +501,10 @@ async function saveTicketAPI(ticketData) {
             return { success: false, error: 'Numéro de ticket manquant' };
         }
         
-// ==========================================
-// 2. CORRECTION CRITIQUE: Fonction saveTicketAPI()
-// ==========================================
-async function saveTicketAPI(ticketData) {
-    try {
-        console.log("Envoi du ticket à l'API:", ticketData);
-        
+        // CORRECTION: Format des données attendu par le serveur
+        // Le serveur s'attend à 'ticketNumber' et non 'number'
         const requestData = {
-            ticketNumber: ticketData.number, // Le serveur va ignorer ceci mais on l'envoie pour la compatibilité
+            ticketNumber: ticketData.number, // CORRECTION: Changé de 'number' à 'ticketNumber'
             draw: ticketData.draw,
             draw_time: ticketData.drawTime,
             bets: ticketData.bets,
@@ -557,9 +552,14 @@ async function saveTicket() {
     
     const total = activeBets.reduce((sum, bet) => sum + bet.amount, 0);
     
-    // Le numéro sera généré par le serveur
+    // CORRECTION: S'assurer que le numéro de ticket est défini
+    if (!ticketNumber || ticketNumber === null) {
+        // Générer un numéro temporaire si nécessaire
+        ticketNumber = 100001;
+    }
+    
     const ticket = {
-        number: ticketNumber, // Ce numéro sera ignoré par le serveur
+        number: ticketNumber,
         draw: currentDraw,
         drawTime: currentDrawTime,
         bets: activeBets,
@@ -577,17 +577,28 @@ async function saveTicket() {
         if (response && response.success) {
             console.log("✅ Ticket sauvegardé avec succès:", response.ticket);
             
-            // Utiliser le ticket retourné par le serveur avec le numéro généré
+            // IMPORTANT: Utiliser le ticket retourné par le serveur, pas le ticket local
+            // Le serveur génère un ID unique et peut ajuster le numéro
             const savedTicket = {
                 ...response.ticket,
-                id: response.ticket.id || Date.now().toString()
+                id: response.ticket.id || Date.now().toString(),
+                // CORRECTION: S'assurer que le numéro est extrait correctement
+                number: response.ticket.ticketNumber || response.ticket.number
             };
             
             // Ajouter aux tickets sauvegardés localement
             savedTickets.push(savedTicket);
             
-            // Mettre à jour le numéro de ticket local avec celui du serveur + 1
-            ticketNumber = response.ticket.number + 1;
+            // CORRECTION: Mettre à jour le numéro de ticket pour le prochain
+            // Utiliser la valeur retournée par le serveur
+            if (response.ticket.ticketNumber) {
+                ticketNumber = response.ticket.ticketNumber + 1;
+            } else if (response.ticket.number) {
+                ticketNumber = response.ticket.number + 1;
+            } else {
+                // Incrémenter manuellement en dernier recours
+                ticketNumber += 1;
+            }
             
             showNotification("Fiche sove avèk siksè!", "success");
             
@@ -608,6 +619,7 @@ async function saveTicket() {
         throw error;
     }
 }
+
 // ==========================================
 // 4. CORRECTION: Fonctions pour les fiches multi-tirages
 // ==========================================
